@@ -1,0 +1,47 @@
+                                    ------
+                                    About
+                                    ------
+                                    Jay Liang
+                                    ------
+                                    2008/04/24
+    
+                                    
+News
+
+    * 07/02/2008 - <<JGeocoder 0.4 released! Address parser now has auto spelling correction and auto city name alias resolution>> 
+    
+    * 07/02/2008 - <<JGeocoder now has a confluence wiki page, new documentations will be added {{{http://docs.codehaus.org/display/JGEOCODER/}there}}>>
+
+About JGeocoder
+
+    Geocoding is the process of estimating a latitude and longitude for a given location. JGeocoder is a free geocoder implemented in Java. This project is loosely modeled after {{{http://search.cpan.org/~sderle/Geo-Coder-US/}Geo::Coder::US}}, a Perl module available for download from the CPAN.
+
+    Keywords: geocoder java, address parser, geocode java, java geocoding API, address standardization
+    
+Project Status
+    
+    I had just uploaded raw data files of 12 more states. You load them into a database and connect jgeocoder to it for street level geocoding.
+
+    I am planning to re-write a major portion of jgeocoder because while the current design works, it's not flexible enough to allow high quality fuzzy search. I can either put fuzzy match on top of the current design or I can tear things down and rebuild something better. I'd decided to choose the 2nd option. 
+    
+    The biggest benefit of new design is that it will be closer to the quality google map's geocoder. For example, you can put 'south st philadelphia' in google map and its geocoder will resolve it to 'South St, Philadelphia, PA'. With the current jgeocoder's parser based design, that is almost unachievable. I need to switch from the parser based design to information retrieval design in order to make it as flexible as google map.
+
+Current Design
+
+    <<see {{{quick.html}Quick Start}} for a tutorial about how to test JGeocoder>> 
+
+    This project will consist of 3 major components:
+    
+    *   {{{parser.html}Address parser}}, which will be responsible for parsing an input address into a standardize format. This is necessary because the 
+address database stores address data in a certain format. In order to geocode an address, the input address must be turned into a recognizable
+format first. 
+    
+    *   {{{geocoder.html}Address geocoder}}, which takes in the parsed address as input and searches the address database for the corresponding address. If the
+address is found, the lat/lon will then be estimated using the information of the found address. 
+    
+    *   {{{import.html}Data importing scripts}}. JGeocoder will be using the {{{http://www.census.gov/geo/www/tiger/}Tiger/Line}} address database from US census bureau.
+This module will import the Tiger/Line data files into a relational database for the address geocoder.
+        
+    If you are interested in helping out, send me a message at 'zl25drexel AT gmail DOT com'. (You need to be reasonably proficient with
+Java, Maven2 and open source development in general). I don't have time to do everything by myself nor do I want to :-)
+ 

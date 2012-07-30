@@ -1,0 +1,96 @@
+                                    ------
+                                    Usage
+                                    ------
+                                    Jay Liang
+                                    ------
+                                     2008/06/18
+
+Using the Parser
+
+    The Parser takes in the entire address in a single line and produces a map of {AddressComponent -> value}
+    
++---------------------------------------------------------------------------------------------------------------+
+   @org.junit.Test
+   public void testParseAddress()
+   {
+      Map<AddressComponent, String> addressComponents = AddressParser.parseAddress("123 FISH AND GAME rd philadelphia pa 12345");
+      assertEquals("12345", addressComponents.get(AddressComponent.ZIP));
+      assertEquals("philadelphia", addressComponents.get(AddressComponent.CITY));
+      assertEquals("pa", addressComponents.get(AddressComponent.STATE));
+      assertEquals("123", addressComponents.get(AddressComponent.NUMBER));
+      assertEquals("FISH AND GAME", addressComponents.get(AddressComponent.STREET));
+      assertEquals("rd", addressComponents.get(AddressComponent.TYPE));
+   }
++---------------------------------------------------------------------------------------------------------------+
+
+Using the Standardizer
+    
+    The Standardizer takes in a parsed address map (see above) and normalize it
+
++---------------------------------------------------------------------------------------------------------------+
+   @org.junit.Test
+   public void testDesignatorConfusingCitiesParsing(){
+     String addr1 = "123 main street St. louis Missouri";
+     Map<AddressComponent, String> m = AddressStandardizer.normalizeParsedAddress(AddressParser.parseAddress(addr1));
+     assertEquals("123", m.get(AddressComponent.NUMBER));
+     assertEquals("MAIN", m.get(AddressComponent.STREET));
+     assertEquals("ST", m.get(AddressComponent.TYPE));
+     assertEquals("SAINT LOUIS", m.get(AddressComponent.CITY));
+     assertEquals("MO", m.get(AddressComponent.STATE));
+     addr1 = "123 south lake park  Fort Duchesne Utah";
+     m = AddressStandardizer.normalizeParsedAddress(AddressParser.parseAddress(addr1));
+     assertEquals("FORT DUCHESNE", m.get(AddressComponent.CITY));
+     assertEquals("LAKE", m.get(AddressComponent.STREET));
+     assertEquals("PARK", m.get(AddressComponent.TYPE));
+     assertEquals("UT", m.get(AddressComponent.STATE));
+     addr1 = "123 south lake park apt 200 Fort Duchesne Utah";
+     m = AddressStandardizer.normalizeParsedAddress(AddressParser.parseAddress(addr1));
+     assertEquals("FORT DUCHESNE", m.get(AddressComponent.CITY));
+     assertEquals("LAKE", m.get(AddressComponent.STREET));
+     assertEquals("PARK", m.get(AddressComponent.TYPE));
+     assertEquals("UT", m.get(AddressComponent.STATE));
+     assertEquals("APT 200", m.get(AddressComponent.LINE2));
+   }
++---------------------------------------------------------------------------------------------------------------+
+
+Using the Geocoder
+
+    <<Read {{{installation.html}Installation Instructions}} first>>
+
++---------------------------------------------------------------------------------------------------------------+
+import java.util.concurrent.TimeUnit;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
+import net.sourceforge.jgeocoder.CommonUtils;
+import net.sourceforge.jgeocoder.JGeocodeAddress;
+import net.sourceforge.jgeocoder.tiger.H2DbDataSourceFactory;
+import net.sourceforge.jgeocoder.tiger.JGeocoder;
+import net.sourceforge.jgeocoder.tiger.JGeocoderConfig;
+
+  public static void main(String[] args) {
+    JGeocoderConfig config = new JGeocoderConfig();
+    config.setJgeocoderDataHome("C:\\Users\\jliang\\Desktop\\jgeocoder\\data");
+    config.setTigerDataSource(H2DbDataSourceFactory.getH2DbDataSource("jdbc:h2:C:\\Users\\jliang\\Desktop\\jgeocoder\\tiger\\tiger;LOG=0;UNDO_LOG=0"));
+    JGeocoder jg = new JGeocoder(config);
+    long start = System.currentTimeMillis();
+    JGeocodeAddress addr = jg.geocodeAddress("lazaros pizza house 1743 south st philadelphia pa 19146");
+    System.out.println(ToStringBuilder.reflectionToString(addr, ToStringStyle.MULTI_LINE_STYLE));
+    CommonUtils.printElapsed(start, TimeUnit.SECONDS);
+    
+    jg.cleanup();
+  }                                            
++---------------------------------------------------------------------------------------------------------------+
+
+    The above codes will print (the first address always takes longer to geocode because the startup time, see also {{{quick.html}Quick Start}}
+
++---------------------------------------------------------------------------------------------------------------+
+net.sourceforge.jgeocoder.JGeocodeAddress@6ac461[
+  _parsedAddr={NAME=lazaros pizza house, PREDIR=null, TYPE=st, STATE=pa, NUMBER=1743, CITY=philadelphia, STREET=south, ZIP=19146}
+  _normalizedAddr={NAME=LAZAROS PIZZA HOUSE, PREDIR=null, TYPE=ST, NUMBER=1743, STATE=PA, CITY=PHILADELPHIA, STREET=SOUTH, ZIP=19146}
+  _geocodedAddr={NAME=LAZAROS PIZZA HOUSE, PREDIR=null, NUMBER=1743, CITY=PHILADELPHIA, COUNTY=PHILADELPHIA, TLID=131407785, LAT=39.944244, TYPE=ST, STATE=PA, STREET=SOUTH, ZIP=19146, POSTDIR=null, LON=-75.171906}
+  _acuracy=STREET
+]
+Elapsed time = 5.163 SECONDS
++---------------------------------------------------------------------------------------------------------------+      

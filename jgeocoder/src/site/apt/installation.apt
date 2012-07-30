@@ -1,0 +1,179 @@
+                                    ------
+                                    Installation
+                                    ------
+                                    Jay Liang
+                                    ------
+                                    2008/06/18
+
+Download an Install the JGeocoder database
+
+    <<This MUST be done first and done correctly otherwise JGeocoder will not work.>>
+
+    If you wish to use JGeocoder's geocoding capability, you will need to first download and install (or create)
+a compatible address database first. (Alternatively, you can use JGeocoder's parsing capability alone and 
+perform geocoding with your own address data). 
+
+    Currently JGeocoder uses data from 2 data sources. The first data source is a berkeleyDb database which contains data
+that are not from Tiger/Line data set. They include information such as zip -> city,state mapping, zip centroid, city
+centroid, etc. This data source is very small (a few MB), so you can download the data files directly from JGecoder's 
+sourceforge page. 
+
+    The second data source is a relational database which contains data from Tiger/Line data files. They are lat/lon data
+at the street level which JGeocoder uses to triangulate the lat/lon of a specific address. This data source is extremely big (more than
+5GB of data). Therefore, currently I cannot provide download for it in its entirety. You can, however, download a subset of it
+from the sourceforge.net download page to do some quick tests on JGeocoder (If you want a fully working geocoder that are able to geocode
+all US addresses then you will have to do some data loading yourself to build this relational database). 
+
+Data installations
+
+    From this point on, I assume that you have the following system variables. The JGeocoder test client will query them during initialization using
+System.getProperty("jgeocoder.data.home") and System.getProperty("jgeocoder.tiger.url") 
+    
++---------------------------------------------------------------------------------------------------------------+
+#$HOME is the full absolute path where  JGeocoder's data files folder should be installed to 
+#for example, C:\ ,  /usr/local/, etc
+export jgeocoder.data.home='$HOME/jgeocoder/data' 
+
+#$URL is the JDBC connection url to the relational database which the Tiger/Line data is loaded
+export jgeocoder.tiger.url='$JDBC_URL'
++---------------------------------------------------------------------------------------------------------------+  
+    
+    You can download the example data folder from sourceforge to examine the layout. (see also  {{{quick.html}Quick Start}}) 
+
+    If you are using the pre-loaded data folder from sourceforge, and assuming that you extract the included 'jgeocoder' folder
+to /usr/local/ , then you should configure these two variables as followed:
+
++---------------------------------------------------------------------------------------------------------------+
+export jgeocoder.data.home='/usr/local/jgeocoder/data' 
+
+#the data folder included a H2 database {{http://h2database.com}} pre-loaded with PA Tiger/Line data
+export jgeocoder.tiger.url='jdbc:h2:/usr/local/jgeocoder/tiger/tiger;LOG=0;UNDO_LOG=0'
++---------------------------------------------------------------------------------------------------------------+  
+    
+
+   If you are calling the JGeocoder API in your program, then you have the options to configure these variables
+by constructing a JGeocoderConfig object and pass it to JGeocoder:
+  
++----------------------------------------------------------------------------------------------------+
+    JGeocoderConfig config = new JGeocoderConfig();
+    config.setJgeocoderDataHome("C:\\jgeocoder\\data");
+    config.setTigerDataSource(H2DbDataSourceFactory.getH2DbDataSource("jdbc:h2:C:\\jgeocoder\\tiger\\tiger;LOG=0;UNDO_LOG=0"));
+    JGeocoder jg = new JGeocoder(config);
+    JGeocodeAddress addr = jg.geocodeAddress("lazaros pizza house 1743 south st philadelphia pa 19146");
+    System.out.println(addr);
+    jg.cleanup();
++----------------------------------------------------------------------------------------------------+
+
+    Alternatively, you can use the -D options when you start the JVM 
+
++----------------------------------------------------------------------------------------------------+
+Cygwin (with quotes):
+
+-Djgeocoder.data.home='C:\jgeocoder\data' -Djgeocoder.tiger.url='jdbc:h2:C:\jgeocoder\tiger\tiger;LOG=0;UNDO_LOG=0'
+
+Windows (no quotes):
+
+-Djgeocoder.data.home=C:\jgeocoder\data -Djgeocoder.tiger.url=jdbc:h2:C:\jgeocoder\tiger\tiger;LOG=0;UNDO_LOG=0
++----------------------------------------------------------------------------------------------------+
+    
+    Or you can set the sytem properties as followed
+
++----------------------------------------------------------------------------------------------------+
+System.setProperty("jgeocoder.data.home", "C:\jgeocoder\data");
+System.setProperty("jgeocoder.tiger.url", "C:\jgeocoder\tiger\tiger");
++----------------------------------------------------------------------------------------------------+
+
+Downloading the jar files from Maven2 repository
+
+   After the data folder is installed, you can call into JGeocoder by including JGeocoder's jar file into your project.
+   
+   If you are using maven 2 (good for you), you can add jgeocoder as a dependency to your maven2 pom.xml.
+Maven2's recursive dependency resolver should automatically pull in all the necessary third party dependencies.
+   
++----------------------------------------------------------------------------------------------------+
+      
+  <dependency>
+          <groupId>net.sourceforge.jgeocoder</groupId>
+          <artifactId>jgeocoder</artifactId>
+          <version><!-- the version you want --></version> 
+  </dependency>
+  
+  <repositories>
+      <repository>
+          <releases>
+              <updatePolicy>never</updatePolicy>
+              <checksumPolicy>warn</checksumPolicy>
+              <enabled>true</enabled>
+          </releases>
+          <id>jgeocoder</id>
+          <name>jgeocoder repo</name>
+          <url>http://www.cs.drexel.edu/~zl25/maven2/repo</url>
+      </repository>
+  </repositories>    
+  
++----------------------------------------------------------------------------------------------------+   
+   
+   Observe that the above repository is a private one, in case it's down or you don't want to trust a private repository, 
+follow the instructions below to manually install the jar to your local repository.
+
+Manually install to your local Maven2 repository
+
+   *    Go to {{{http://sourceforge.net/projects/jgeocoder}sourceforge.net}} and download the binary distro. 
+   *    install jgeocoder-(version).jar to your local repository
+   
++----------------------------------------------------------------------------------------------------+
+
+    mvn install:install-file  -DgroupId=net.sourceforge.jgeocoder -DartifactId=jgeocoder -Dpackaging=jar -Dversion=<version> -Dfile="path to the jar file"
+
++----------------------------------------------------------------------------------------------------+
+   
+   The jar package already contain the some meta data for maven 2 to pull down the necessary third party dependencies.
+In case it didn't work, add the following third party dependencies to your project if you don't already have them.
+           
++----------------------------------------------------------------------------------------------------+
+
+    <dependency>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
+      <version>3.2</version>
+    </dependency>
+    <dependency>
+        <groupId>commons-dbutils</groupId>
+        <artifactId>commons-dbutils</artifactId>
+        <version>1.1</version>
+    </dependency>     
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.4</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.0.4</version>
+    </dependency>    
+    <dependency>
+        <groupId>berkeleydb</groupId>
+        <artifactId>je</artifactId>
+        <version>3.2.44</version>
+    </dependency>  
+    <!-- this is optional if you setup your own relational database for the Tiger/Line data, in that case, you should include your database's driver-->
+    <dependency>
+        <groupId>com.h2database</groupId>
+        <artifactId>h2</artifactId>
+        <version>1.0.73</version>
+    </dependency> 
+   
++----------------------------------------------------------------------------------------------------+      
+
+
+Non Maven2 users
+
+   If you are not using Maven2 for your project, take a look at the lib directory in the binary-all distro and add all those jars to your projects. 
+   See {{http://jgeocoder.sourceforge.net/dependencies.html}} for more details.
+   
+Building from source
+
+    *    Building from source is easy if you already have maven 2 install. If not, download and install maven 2 ( {{http://maven.apache.org/}} )
+    
+    *    After maven 2 is installed and working correctly, go to the source code directory and type 'mvn package' and get the binary build in the 'target' sub directory.

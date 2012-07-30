@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<faqs title="Frequently Asked Questions">
+
+  <part id="general">
+    <title>General</title>
+   
+    <faq id="reference">
+      <question>
+       Where do I find more documentations and references?
+      </question>
+      <answer>
+       Documentations are lacking currently because the project is being actively developed. The good news is that JGeocoder has a 
+       very simple API so if you read and understand everything on this site, you should have no problems using JGecoder.
+       <br/>
+       Some documentations are available at <a href="http://docs.codehaus.org/display/JGEOCODER/">http://docs.codehaus.org/display/JGEOCODER/</a>
+      </answer>
+    </faq>
+    
+    <faq id="more-info">
+      <question>
+       Where do I get more supports?
+      </question>
+      <answer>
+       It's an opened source project, so only communiti support is available. Use our user mailing list at <a href="http://groups.google.com/group/jgeocoder-users">jgeocoder-users</a>. 
+      </answer>
+    </faq>
+
+  </part>
+  <part id="data">
+    <title>Data</title>
+   
+    <faq id="where">
+      <question>
+       Where do I get data?
+      </question>
+      <answer>
+       You can download it from our sourceforge download page, or you can load the data yourself to a schema that is compatible with JGeocoder.
+       See <a href="http://jgeocoder.sourceforge.net/import.html">Data Import</a> page for more details.
+      </answer>
+    </faq>
+    
+    <faq>
+        <question>
+        How accurate/recent are JGeocoder's data?
+        </question>
+        <answer>
+        The current releases use Tiger/Line 2006 Second Edition data from US census bureau.  
+        </answer>        
+    </faq>
+  </part>
+  <part id="parser">
+    <title>Parser</title>
+   
+    <faq id="where">
+      <question>
+       The parser is not able to parse addresses 'XXX XXX...'
+      </question>
+      <answer>
+       No address parsers are perfect, JGeocoder has a very good parser judging based from my experiences with the parsers in other geocoders.
+       If you think your addresses are reasonably formatted and should be parsable, tell us about them. The more feedbacks we receive,
+       the better we will be able to adjust the parser to cover more corner cases.
+      </answer>
+    </faq>
+    
+    <faq>
+        <question>
+        Can the parser parses non-US addresses?
+        </question>
+        <answer>
+        No, JGeocoder only supports US addresses at this moment.   
+        </answer>        
+    </faq>
+  </part>      
+</faqs>

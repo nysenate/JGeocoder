@@ -1,0 +1,125 @@
+                                    ------
+                                    Quick Start
+                                    ------
+                                    Jay Liang
+                                    ------
+                                     2008/06/15
+    
+Quick test with command line client
+  
+      JGeocoder contains a command line test client you can use to test JGeocoder. Note that it is not meant to be 
+the primary interface of JGeocder. Currently JGeocoder is a set of APIs which allow developers to create a geocoder for U.S. addresses.
+
+Step By Step Guide
+    
+    1. Download jgeocoder-data-with-PA-0.3.7z from sourceforge 
+    
+    2. Extract the 'jgeocoder' folder in the .7z file to your harddrive. Here I assume that you are putting it to C:\
+    
+    3. Download the JGeocoder client jgeocoder-0.4-jar-with-dependencies.jar from sourceforge
+    
+    4. Start the JGeocoder client with the following command 
+
++---------------------------------------------------------------------------------------------------------------+
+Windows (no quotes):
+
+java -jar -Djgeocoder.data.home=C:\jgeocoder\data -Djgeocoder.tiger.url=jdbc:h2:C:\jgeocoder\tiger\tiger;LOG=0;UNDO_LOG=0 jgeocoder-0.4-SNAPSHOT-jar-with-dependencies.jar
+
+Cygwin (with quote):
+
+java -jar -Djgeocoder.data.home='C:\jgeocoder\data' -Djgeocoder.tiger.url='jdbc:h2:C:\jgeocoder\tiger\tiger;LOG=0;UNDO_LOG=0' jgeocoder-0.4-SNAPSHOT-jar-with-dependencies.jar 
++---------------------------------------------------------------------------------------------------------------+    
+
+    5. Start testing by entering addresses. Note that the database jgeocoder-data-with-PA-0.3.7z only contains 
+PA data, so all addresses that are outside of PA will only get a zip level or city state level geocode. Go to 
+map.google.com to get PA addresses if you don't have them (search something like 'pizza' in 'philadelphia pa' to get valid addresses)
+    
+    See also this thread on http://groups.google.com/group/jgeocoder-users/browse_thread/thread/802160e98df1f951 if you are having troubles. 
+
+Test Session
+
+    Observe the following
+    
+    * The first input will take longer to geocode because the startup time
+    
+    * Addresses with zip code can be geocoded much faster than ones that do not have zip. 
+    
+    * If zip is missing, addresses in big cities will take longer to geocode because smaller cities have less zips.
+    
+    * Missing information such as street direction, street designator, City, State, Zip, etc are automatically populated.
+    
+    * Incorrect street designation, city, state, are automatically corrected
+    
++---------------------------------------------------------------------------------------------------------------+
+%> java -jar -Djgeocoder.data.home='C:\jgeocoder\data' -Djgeocoder.tiger.url='jdbc:h2:C:\jgeocoder\tiger\tiger;LOG=0;UNDO_LOG=0' jgeocoder-0.3-SNAPSHOT-jar-with-dependencies.jar
+
+Input raw address as a single line
+Enter blank line to end session
+
+123 6th street philadelphia pa
+
+Parsed: 123 6th street, philadelphia, pa
+Normalized: 123 6TH ST, PHILADELPHIA, PA
+Geocoded: 123 N 6TH ST, PHILADELPHIA, PA 19123
+net.sourceforge.jgeocoder.JGeocodeAddress@83b1b[
+  _parsedAddr={STREET=6th, CITY=philadelphia, TYPE=street, NUMBER=123, STATE=pa}
+  _normalizedAddr={STREET=6TH, CITY=PHILADELPHIA, TYPE=ST, NUMBER=123, STATE=PA}
+  _geocodedAddr={STREET=6TH, LAT=39.95276, POSTDIR=null, ZIP=19123, CITY=PHILADELPHIA, TYPE=ST, NUMBER=123, COUNTY=PHILADELPHIA, LON=-75.14951, TLID=131423684, PREDIR=N, STATE=PA}
+  _acuracy=STREET
+]
+Elapsed time = 11.166 SECONDS
+
+123 6th st 19123
+
+Parsed: 123 6th st, 19123
+Normalized: 123 6TH ST, 19123
+Geocoded: 123 N 6TH ST, PHILADELPHIA, PA 19123
+net.sourceforge.jgeocoder.JGeocodeAddress@b32ed4[
+  _parsedAddr={STREET=6th, ZIP=19123, TYPE=st, NUMBER=123}
+  _normalizedAddr={STREET=6TH, ZIP=19123, TYPE=ST, NUMBER=123}
+  _geocodedAddr={STREET=6TH, LAT=39.95276, POSTDIR=null, ZIP=19123, CITY=PHILADELPHIA, TYPE=ST, NUMBER=123, LON=-75.14951, COUNTY=PHILADELPHIA, TLID=131423684, PREDIR=N, STATE=PA}
+  _acuracy=STREET
+]
+Elapsed time = 0.132 SECONDS
+
+123 6th 19123
+
+Parsed: 123 6th, 19123
+Normalized: 123 6TH, 19123
+Geocoded: 123 N 6TH ST, PHILADELPHIA, PA 19123
+net.sourceforge.jgeocoder.JGeocodeAddress@19e215b[
+  _parsedAddr={STREET=6th, ZIP=19123, NUMBER=123}
+  _normalizedAddr={STREET=6TH, ZIP=19123, NUMBER=123}
+  _geocodedAddr={STREET=6TH, LAT=39.95276, POSTDIR=null, ZIP=19123, CITY=PHILADELPHIA, TYPE=ST, NUMBER=123, LON=-75.14951, COUNTY=PHILADELPHIA, TLID=131423684, PREDIR=N, STATE=PA}
+  _acuracy=STREET
+]
+Elapsed time = 0.134 SECONDS
+
+123 6th ave philadelphia 19123
+
+Parsed: 123 6th ave, philadelphia, 19123
+Normalized: 123 6TH AVE, PHILADELPHIA, 19123
+Geocoded: 123 N 6TH ST, PHILADELPHIA, PA 19123
+net.sourceforge.jgeocoder.JGeocodeAddress@f07355[
+  _parsedAddr={STREET=6th, ZIP=19123, CITY=philadelphia, TYPE=ave, NUMBER=123}
+  _normalizedAddr={STREET=6TH, ZIP=19123, CITY=PHILADELPHIA, TYPE=AVE, NUMBER=123}
+  _geocodedAddr={STREET=6TH, LAT=39.95276, POSTDIR=null, ZIP=19123, CITY=PHILADELPHIA, TYPE=ST, NUMBER=123, LON=-75.14951, COUNTY=PHILADELPHIA, TLID=131423684, PREDIR=N, STATE=PA}
+  _acuracy=STREET
+]
+Elapsed time = 0.135 SECONDS
+
+123 6th st, king of prussia 19123
+
+Parsed: 123 6th st, king of prussia, 19123
+Normalized: 123 6TH ST, KING OF PRUSSIA, 19123
+Geocoded: 123 N 6TH ST, PHILADELPHIA, PA 19123
+net.sourceforge.jgeocoder.JGeocodeAddress@1c8efd1[
+  _parsedAddr={STREET=6th, ZIP=19123, CITY=king of prussia, TYPE=st, NUMBER=123}
+  _normalizedAddr={STREET=6TH, ZIP=19123, CITY=KING OF PRUSSIA, TYPE=ST, NUMBER=123}
+  _geocodedAddr={STREET=6TH, LAT=39.95276, POSTDIR=null, ZIP=19123, CITY=PHILADELPHIA, TYPE=ST, NUMBER=123, LON=-75.14951, COUNTY=PHILADELPHIA, TLID=131423684, PREDIR=N, STATE=PA}
+  _acuracy=STREET
+]
+Elapsed time = 0.168 SECONDS
++---------------------------------------------------------------------------------------------------------------+
+
+

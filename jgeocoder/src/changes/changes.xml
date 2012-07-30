@@ -1,0 +1,43 @@
+<document>
+  <properties>
+    <title>Release Notes</title>
+  </properties>
+  <body>
+      <release version="0.5" date="TBD">
+          <action dev="jliang" type="update">
+          Better geocoding support
+          </action>
+          <action dev="jliang" type="fix">
+          fixed NPE when encounter invalid zip code
+          </action>
+        <action dev="jliang" type="add">
+          Added support for geocoding counties
+          </action>          
+      </release>
+      <release version="0.4.1" date="7/25/2008">
+          <action dev="jliang" type="update">
+          Use EnumhMap to store parsed compoents instead of HashMap
+          </action>
+          <action dev="jliang" type="fix">
+          Close a couple of unclosed BufferedReaders 
+          </action>
+          <action dev="jliang" type="fix">
+          Enhanced parser with additional street designators
+          </action>
+      </release>
+      <release version="0.4" date="7/02/2008">
+          <action dev="jliang" type="update">
+           Parsing logics enhancements
+          </action>
+          <action dev="jliang" type="add">
+           State name auto correction
+          </action>
+          <action dev="jliang" type="add">
+           Added city name alias resolver
+          </action>          
+        <action dev="jliang" type="update">
+           Performance improvement of parser
+          </action>          
+      </release>
+  </body>
+</document>

@@ -1,0 +1,20 @@
+#bannerLeft, #bannerRight {
+  color: #ffffff;
+  font-size: xx-large;
+  font-weight: bold;
+}
+
+#banner {
+  color: #fff;
+  font-weight: bold;
+  height: 70px;
+  background: url(../images/earthbanner.jpg);
+}
+
+h2 {
+  font-size: 17px;
+  color: #fff;  
+  background-image: url("../images/bglbl.gif");
+  padding: 0.3em;
+  border: 1px dashed;
+}

@@ -1,0 +1,58 @@
+                                    ------
+                                    Know Issues
+                                    ------
+                                    Jay Liang
+                                    ------
+                                    2008/06/20
+                                    
+Some addresses take very long to geocode
+
+    Normally, JGeocoder is very fast. However there are cases where the geocoder will take exceptionally large amount
+of time to geocode some addresses. For example, '123 south street philadelphia pa' takes 0.828 seconds to geocode but
+'123 main street philadelphia pa' (this address does not exist in philadelphia pa) takes 45.234 seconds to geocode. It makes
+senses that addresses that cannot be geocoded will take longer to geocode because the geocoder might need to search more data
+to come to that conclusion. But interestingly enough, '123 sakdkdskds street philadelphia pa', which is also an address that doesn't
+exist, takes only 0.25 seconds to geocode. 
+     
++---------------------------------------------------------------------------------------------------------------+
+    
+123 main street philadelphia pa
+
+Parsed: 123 main street, philadelphia, pa
+Normalized: 123 MAIN ST, PHILADELPHIA, PA
+Geocoded: 123 MAIN ST, PHILADELPHIA, PA
+net.sourceforge.jgeocoder.JGeocodeAddress@edbca8[
+  _parsedAddr={TYPE=street, NUMBER=123, STATE=pa, CITY=philadelphia, STREET=main}
+  _normalizedAddr={TYPE=ST, NUMBER=123, STREET=MAIN, CITY=PHILADELPHIA, STATE=PA}
+  _geocodedAddr={TYPE=ST, NUMBER=123, LAT=39.951637, STATE=PA, CITY=PHILADELPHIA, STREET=MAIN, LON=-75.16381}
+  _acuracy=CITY_STATE
+]
+Elapsed time = 45.234 SECONDS
+
+123 south st philadelphia pa
+
+Parsed: 123 south st, philadelphia, pa
+Normalized: 123 SOUTH ST, PHILADELPHIA, PA
+Geocoded: 123 SOUTH ST, PHILADELPHIA, PA 19147
+net.sourceforge.jgeocoder.JGeocodeAddress@8420ae[
+  _parsedAddr={TYPE=st, PREDIR=null, NUMBER=123, STATE=pa, CITY=philadelphia, STREET=south}
+  _normalizedAddr={TYPE=ST, PREDIR=null, NUMBER=123, STREET=SOUTH, CITY=PHILADELPHIA, STATE=PA}
+  _geocodedAddr={TYPE=ST, ZIP=19147, PREDIR=null, NUMBER=123, POSTDIR=null, LAT=39.94097, STATE=PA, CITY=PHILADELPHIA, STREET=SOUTH, TLID=131424930, COUNTY=PHILADELPHIA, LON=-75.145035}
+  _acuracy=STREET
+]
+Elapsed time = 0.828 SECONDS
+
+123 sakdkdskds street philadelphia pa
+
+Parsed: 123 sakdkdskds street, philadelphia, pa
+Normalized: 123 SAKDKDSKDS ST, PHILADELPHIA, PA
+Geocoded: 123 SAKDKDSKDS ST, PHILADELPHIA, PA
+net.sourceforge.jgeocoder.JGeocodeAddress@9934d4[
+  _parsedAddr={TYPE=street, NUMBER=123, STATE=pa, CITY=philadelphia, STREET=sakdkdskds}
+  _normalizedAddr={TYPE=ST, NUMBER=123, STREET=SAKDKDSKDS, CITY=PHILADELPHIA, STATE=PA}
+  _geocodedAddr={TYPE=ST, NUMBER=123, LAT=39.951637, STATE=PA, CITY=PHILADELPHIA, STREET=SAKDKDSKDS, LON=-75.16381}
+  _acuracy=CITY_STATE
+]
+Elapsed time = 0.25 SECONDS
+
++---------------------------------------------------------------------------------------------------------------+

@@ -1,0 +1,160 @@
+                                    ------
+                                    Usage
+                                    ------
+                                    Jay Liang
+                                    ------
+                                     2008/06/05
+
+
+Usage (Java 1.6 or higher is required)
+      
+      Yes, you read it correctly, this project requires Java 1.6 (at least for the time being). The address parser relies heavily on 
+many complex regular expressions. The regex engine in JDK 1.6 is optimized while JDK 1.5 is not fast enough to run these regex. Therefore,
+you need java 1.6 to run the address parser. (You are free download the source codes and try to compile them with JDK 1.5, it's possible
+that future JDK 1.5 releases will have fixed its problems with regex).
+
+    If you are already using 1.5, you should consider moving to 1.6 anyways because there are some significant performance improvements.  
+{{{http://java.sun.com/javase/downloads/index_jdk5.jsp}Java SE 5.0 is in its Java Technology End of Life (EOL) transition period.}}
+
+Use address parser to parse raw input address
+
+
++---------------------------------------------------------------------------------------------------------------+     
+  public static void main(String[] args) {
+    Map<AddressComponent, String> parsedAddr  = AddressParser.parseAddress("Google Inc, 1600 Amphitheatre Parkway, Mountain View, CA 94043");
+    System.out.println(parsedAddr);
+    
+    Map<AddressComponent, String> normalizedAddr  = AddressStandardizer.normalizeParsedAddress(parsedAddr); 
+    System.out.println(normalizedAddr);
+  }
++---------------------------------------------------------------------------------------------------------------+
+
+  The above codes will print:
+
++---------------------------------------------------------------------------------------------------------------+
+{street=Amphitheatre, city=Mountain View, number=1600, zip=94043, state=CA, name=Google Inc, type=Parkway}
+{street=AMPHITHEATRE, city=MOUNTAIN VIEW, number=1600, zip=94043, state=CA, name=GOOGLE INC, type=PKWY}  
++---------------------------------------------------------------------------------------------------------------+
+  
+  The address parser is very forgiving, it's able to parse and normalize addresses in many different formats. Note that the parser is able to
+successfully identify the address number, street, city, state, zip as well as line 2 and various ways of writing directions from the input.
+
++---------------------------------------------------------------------------------------------------------------+
+  public static void main(String[] args) {
+    
+    String[] inputs = new String[]{
+      "Google Inc 1600 Amphitheatre Pky, Mountain View, CA 94043",
+      "Google Inc, 1600 Amphitheatre Parkway, Mountain View CA",
+      "1600 Amphitheatre Pky, 94043",
+      "Google Inc, 1600 Amphitheatre Parkway, suite 200, Mountain View, CA 94043",
+      "Google Inc, 1600 South Amphitheatre Parkway, Mountain View, CA 94043",
+      "Google Inc, 1600 S W. Amphitheatre Parkway, Mountain View, CA 94043",
+      "Google Inc, 1600 Amphitheatre Parkway N.W., Mountain View, CA 94043",
+      "1600 Amphitheatre Parkway Google Inc, Mountain View, CA 94043",
+      "Attn: larry page: 1600 Amphitheatre Parkway 1st Floor, Mountain View, CA 94043"
+    };
+    
+    for(String in : inputs){
+      Map<AddressComponent, String> parsedAddr  = AddressParser.parseAddress(in);
+      Map<AddressComponent, String> normalizedAddr  = AddressStandardizer.normalizeParsedAddress(parsedAddr); 
+      
+      
+      System.out.println(AddressStandardizer.toSingleLine(normalizedAddr));
+      System.out.println(parsedAddr);
+      System.out.println(normalizedAddr);
+      System.out.println();
+    }
+  }
++---------------------------------------------------------------------------------------------------------------+
+  
+  The above will print
+
++---------------------------------------------------------------------------------------------------------------+
+GOOGLE INC, 1600 AMPHITHEATRE PKWY, MOUNTAIN VIEW, CA 94043 
+{state=CA, street=Amphitheatre, zip=94043, number=1600, city=Mountain View, name=Google Inc, type=Pky}
+{street=AMPHITHEATRE, state=CA, zip=94043, number=1600, city=MOUNTAIN VIEW, name=GOOGLE INC, type=PKWY}
+
+GOOGLE INC, 1600 AMPHITHEATRE PKWY, MOUNTAIN VIEW, CA 
+{state=CA, street=Amphitheatre, number=1600, city=Mountain View, name=Google Inc, type=Parkway}
+{street=AMPHITHEATRE, state=CA, number=1600, city=MOUNTAIN VIEW, name=GOOGLE INC, type=PKWY}
+
+1600 AMPHITHEATRE PKWY, 94043 
+{street=Amphitheatre, zip=94043, number=1600, type=Pky}
+{street=AMPHITHEATRE, zip=94043, number=1600, type=PKWY}
+
+GOOGLE INC, 1600 AMPHITHEATRE PKWY, STE 200, MOUNTAIN VIEW, CA 94043 
+{state=CA, street=Amphitheatre, zip=94043, number=1600, line2=suite 200, city=Mountain View, name=Google Inc, type=Parkway}
+{street=AMPHITHEATRE, state=CA, zip=94043, number=1600, line2=STE 200, city=MOUNTAIN VIEW, name=GOOGLE INC, type=PKWY}
+
+GOOGLE INC, 1600 S AMPHITHEATRE PKWY, MOUNTAIN VIEW, CA 94043 
+{state=CA, street=Amphitheatre, zip=94043, number=1600, city=Mountain View, predir=South, name=Google Inc, type=Parkway}
+{street=AMPHITHEATRE, state=CA, zip=94043, number=1600, city=MOUNTAIN VIEW, name=GOOGLE INC, predir=S, type=PKWY}
+
+GOOGLE INC, 1600 SW AMPHITHEATRE PKWY, MOUNTAIN VIEW, CA 94043 
+{state=CA, street=Amphitheatre, zip=94043, number=1600, city=Mountain View, predir=S W, name=Google Inc, type=Parkway}
+{street=AMPHITHEATRE, state=CA, zip=94043, number=1600, city=MOUNTAIN VIEW, name=GOOGLE INC, predir=SW, type=PKWY}
+
+GOOGLE INC, 1600 AMPHITHEATRE PKWY NW, MOUNTAIN VIEW, CA 94043 
+{state=CA, street=Amphitheatre, zip=94043, number=1600, city=Mountain View, name=Google Inc, postdir=N W, type=Parkway}
+{street=AMPHITHEATRE, state=CA, zip=94043, number=1600, city=MOUNTAIN VIEW, name=GOOGLE INC, postdir=NW, type=PKWY}
+
+1600 AMPHITHEATRE PKWY, GOOGLE INC, MOUNTAIN VIEW, CA 94043 
+{state=CA, street=Amphitheatre, zip=94043, number=1600, line2=Google Inc, city=Mountain View, type=Parkway}
+{street=AMPHITHEATRE, state=CA, zip=94043, number=1600, line2=GOOGLE INC, city=MOUNTAIN VIEW, type=PKWY}
+
+ATTN: LARRY PAGE:, 1600 AMPHITHEATRE PKWY, 1ST FLOOR, MOUNTAIN VIEW, CA 94043 
+{state=CA, street=Amphitheatre, zip=94043, number=1600, line2=1st Floor, city=Mountain View, name=Attn: larry page:, type=Parkway}
+{street=AMPHITHEATRE, state=CA, zip=94043, number=1600, line2=1ST FLOOR, city=MOUNTAIN VIEW, name=ATTN: LARRY PAGE:, type=PKWY}
++---------------------------------------------------------------------------------------------------------------+
+
+Street address intersection
+
+    Intersections are also supported. 
+
++---------------------------------------------------------------------------------------------------------------+
+  public static void main(String[] args) {
+    
+    String[] inputs = new String[]{
+      "KING ST & WARREN AVENUE, MALVERN, PA, 19355",
+      "18th and south board, philadelphia pa 13245",
+    };
+    
+    for(String in : inputs){
+      Map<AddressComponent, String> parsedAddr  = AddressParser.parseAddress(in);
+      Map<AddressComponent, String> normalizedAddr  = AddressStandardizer.normalizeParsedAddress(parsedAddr); 
+      
+      
+      System.out.println(AddressStandardizer.toSingleLine(normalizedAddr));
+      System.out.println(parsedAddr);
+      System.out.println(normalizedAddr);
+      System.out.println();
+    }
+  }
++---------------------------------------------------------------------------------------------------------------+  
+    
+    will print
+    
++---------------------------------------------------------------------------------------------------------------+
+KING AVE & WARREN ST, MALVERN, PA 19355 
+{city=MALVERN, street=KING, zip=19355, state=PA, type2=AVENUE, type=ST, street2=WARREN}
+{city=MALVERN, street=KING, zip=19355, state=PA, type2=AVE, type=ST, street2=WARREN}
+
+18TH & S BOARD, PHILADELPHIA, PA 13245 
+{city=philadelphia, street=18th, zip=13245, state=pa, predir2=south, street2=board}
+{city=PHILADELPHIA, street=18TH, zip=13245, state=PA, predir2=S, street2=BOARD}
++---------------------------------------------------------------------------------------------------------------+
+
+There will be  unrecognizable addresses
+
+    There will be cases where the address parser cannot identify the input addresses. No address
+parsers will be perfect. There will be cases where the address parser cannot parse your input. If you find more of these 
+exceptions, please contact me and I will see if the parser can be enhanced to cover these special cases.
+
+    I am working to add support for addresses of the following formats. Contact me if you have suggestions on how to 
+cover them (or submit a feature request to sourceforge project page).   
+
++---------------------------------------------------------------------------------------------------------------+
+    123 Avenue of art, philadelphia pa 12345
+    PO box 123, abc city, ca 24656
+    123 Route 29 South, new jersey, 12323  
++---------------------------------------------------------------------------------------------------------------+

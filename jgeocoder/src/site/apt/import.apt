@@ -1,0 +1,468 @@
+                                    ------
+                                    Examples
+                                    ------
+                                    Jay Liang
+                                    ------
+                                     2008/06/15
+
++---------------------------------------------------------------------------------------------------------------+
+Under construction, we are working on this to make data loading more accessible. 
+see groovy scripts in jgeocoder-import module in svn repository for more details.
+http://jgeocoder.svn.sourceforge.net/viewvc/jgeocoder/
++---------------------------------------------------------------------------------------------------------------+     
+
+Data Import module     
+
+    The primary function of the data import module is to parse the {{{http://www.census.gov/geo/www/tiger/}Tiger/Line}} data files 
+and import them into a relational database of which will be used by geocoder module.
+
+Primary Data Table
+
+    As mentioned in {{{geocoder.html}Geocoder}}, JGeocoder will query against sql tables named TIGER_<STATE> for a particular given
+state. For example, it queries TIGER_PA to geocode addresses in Pennsylvania and it queries TIGER_CA to geocode addresses
+in California. This gives us logical partitions of the Tiger/Line data using states.  
+    
+    All of these primary tables of different states have the same definitions as showed below (only the names are different of courses). 
+
++---------------------------------------------------------------------------------------------------------------+
+    --this is the primary table for PA
+    create table TIGER_PA ( TLID  numeric  not null,
+        FEDIRP  varchar(2)  ,
+        FENAME  varchar(30)  ,
+        FETYPE  varchar(4)  ,
+        FEDIRS  varchar(2)  ,
+        FRADDL  numeric,
+        TOADDL  numeric,
+        FRADDR  numeric,
+        TOADDR  numeric,
+        ZIPL  varchar(5)  ,
+        ZIPR  varchar(5)  ,
+        FRLONG  numeric  not null,
+        FRLAT  numeric  not null,
+        TOLONG  numeric  not null,
+        TOLAT  numeric  not null,
+        LONG1  numeric ,
+        LAT1  numeric ,
+        LONG2  numeric  ,
+        LAT2  numeric  ,
+        LONG3  numeric  ,
+        LAT3  numeric  ,
+        LONG4  numeric  ,
+        LAT4  numeric  ,
+        LONG5  numeric  ,
+        LAT5  numeric  ,
+        LONG6  numeric  ,
+        LAT6  numeric  ,
+        LONG7  numeric  ,
+        LAT7  numeric  ,
+        LONG8  numeric  ,
+        LAT8  numeric  ,
+        LONG9  numeric  ,
+        LAT9  numeric  ,
+        LONG10  numeric  ,
+        LAT10  numeric  );
++---------------------------------------------------------------------------------------------------------------+    
+    
+    This table is a join table of the TIGER_1 and TIGER_2 tables (see blow). You can create this join table by 
+executing the following query.
+
++---------------------------------------------------------------------------------------------------------------+
+create table tiger_main as select 
+t1.TLID, t1.FEDIRP, t1.FENAME, t1.FETYPE,
+t1.FEDIRS, t1.FRADDL, t1.TOADDL,
+t1.FRADDR, t1.TOADDR, t1.ZIPL, t1.ZIPR, 
+t1.FRLONG, t1.FRLAT, t1.TOLONG,t1.TOLAT,
+t2.RTSQ,t2.LONG1,t2.LAT1,t2.LONG2,t2.LAT2,t2.LONG3,t2.LAT3,
+t2.LONG4,t2.LAT4,t2.LONG5,t2.LAT5,t2.LONG6,t2.LAT6,t2.LONG7,
+t2.LAT7,t2.LONG8,t2.LAT8,t2.LONG9,t2.LAT9,t2.LONG10,t2.LAT10  
+from tiger_1 t1 
+left outer join tiger_2 t2 on t1.tlid = t2.tlid
++---------------------------------------------------------------------------------------------------------------+
+
+Where to get the data
+
+    If you are trying to test JGeocoder, you can simply download a pre-populated database from our 
+sourceforge site and point JGeocoder to it.
+Currently this pre-populated database only contains PA addresses data. Therefore, if you are using this database then
+you will only be able to geocode PA addresses. All other addresses will be geocoded using either the ZIP centroid or 
+City State centroid. 
+(see {{{quick.html}Quick Start}} for instructions)
+
+    This pre-populated database is a H2 database ( http://h2database.com/) with only PA data loaded. If you need data
+from other states or if you need to use other RDBMS (such as MySql), you will have to load the load yourself.  
+
+    The Tiger/Line data files are freely availabel at http://www.census.gov/geo/www/tiger/ . To load them, you can either
+
+    * load them manually
+    
++---------------------------------------------------------------------------------------------------------------+
+1. download Tiger/Line data files
+2. load Tiger_1 and Tiger_2 files into a relational database
+3. create some indexes on the TLID column
+4. Create a join table using Tiger_1 and Tiger_2    
+5. you can drop Tiger_1 and Tiger_2 at this point if you want to
++---------------------------------------------------------------------------------------------------------------+
+
+    OR
+
+    * download the raw jgeocoder-data from our sourceforge project site and load them directly. For example, if you want
+to load the PA address data, you need to download jgeocdoer-raw-PA-0.3.7z and load the CSV file TIGER_PA.csv into a table
+named TIGER_PA. 
+
+    Currently only PA raw data is available because I don't need the enitire US data set to do development. I will be
+slowly releasing raw data files for other states but there's no timeline. It's not hard to load them manually if you need
+them. 
+
+    After the data are loaded, you need to create some indexes on it to make querying more efficient. Take a look at 
+the query described in {{{geocoder.html}Geocoder}}. Without knowing the specifics about RDBMS you are using, I recommend 
+that you simply create indexes on all the query column
+
++---------------------------------------------------------------------------------------------------------------+
+create index IDX0_TIGER_PA on TIGER_PA(tlid);
+create index IDX1_TIGER_PA on TIGER_PA(fename);
+create index IDX2_TIGER_PA on TIGER_PA(fraddL);
+create index IDX3_TIGER_PA on TIGER_PA(toaddL);
+create index IDX4_TIGER_PA on TIGER_PA(fraddR);
+create index IDX5_TIGER_PA on TIGER_PA(toaddR);
+create index IDX6_TIGER_PA on TIGER_PA(zipL);
+create index IDX7_TIGER_PA on TIGER_PA(zipR);
++---------------------------------------------------------------------------------------------------------------+
+
+ 
+Tiger/Line Database schema
+
+    The following schema is generated using the Tiger/Line files' data dictionary (see TigerDefinition.groovy and http://www.census.gov/geo/www/tiger/ for details). 
+JGeocoder is using the 2006 Second Edition data files. Full specifications at {{TGR06SE.pdf}} 
+     
++---------------------------------------------------------------------------------------------------------------+
+create table tiger_1 ( TLID  numeric  not null,
+SIDE1  numeric  ,
+SOURCE  varchar(1)  ,
+FEDIRP  varchar(2)  ,
+FENAME  varchar(30)  ,
+FETYPE  varchar(4)  ,
+FEDIRS  varchar(2)  ,
+CFCC  varchar(3)  not null,
+FRADDL  varchar(11)  ,
+TOADDL  varchar(11)  ,
+FRADDR  varchar(11)  ,
+TOADDR  varchar(11)  ,
+FRIADDL  varchar(1)  ,
+TOIADDL  varchar(1)  ,
+FRIADDR  varchar(1)  ,
+TOIADDR  varchar(1)  ,
+ZIPL  varchar(5)  ,
+ZIPR  varchar(5)  ,
+AIANHHFPL  varchar(5)  ,
+AIANHHFPR  varchar(5)  ,
+AIHHTLIL  varchar(1)  ,
+AIHHTLIR  varchar(1)  ,
+CENSUS1  varchar(1)  ,
+CENSUS2  varchar(1)  ,
+STATEL  varchar(2)  ,
+STATER  varchar(2)  ,
+COUNTYL  varchar(3)  ,
+COUNTYR  varchar(3)  ,
+COUSUBL  varchar(5)  ,
+COUSUBR  varchar(5)  ,
+SUBMCDL  varchar(5)  ,
+SUBMCDR  varchar(5)  ,
+PLACEL  varchar(5)  ,
+PLACER  varchar(5)  ,
+TRACTL  varchar(6)  ,
+TRACTR  varchar(6)  ,
+BLOCKL  varchar(4)  ,
+BLOCKR  varchar(4)  ,
+FRLONG  numeric  not null,
+FRLAT  numeric  not null,
+TOLONG  numeric  not null,
+TOLAT  numeric  not null);
+
+create table tiger_2 ( TLID  numeric  not null,
+RTSQ  numeric  not null,
+LONG1  numeric  not null,
+LAT1  numeric  not null,
+LONG2  numeric  ,
+LAT2  numeric  ,
+LONG3  numeric  ,
+LAT3  numeric  ,
+LONG4  numeric  ,
+LAT4  numeric  ,
+LONG5  numeric  ,
+LAT5  numeric  ,
+LONG6  numeric  ,
+LAT6  numeric  ,
+LONG7  numeric  ,
+LAT7  numeric  ,
+LONG8  numeric  ,
+LAT8  numeric  ,
+LONG9  numeric  ,
+LAT9  numeric  ,
+LONG10  numeric  ,
+LAT10  numeric  );
+
++---------------------------------------------------------------------------------------------------------------+
+
+Other Tiger/Line Files and TLID
+    
+    <<JGeocoder does not need the data in these files>>
+
+    The Tiger/Line database includes other files which JGeocoder does not need to performance geocoding of addresses.
+However, if your specific application requires information in these files, you can import them to a database and query
+them using TLID. TLID is the permanent ID of address entities in Tiger/Line. For example, the geocoder does not return
+information about ZIP4, but you can query ZIP4 by querying the tiger_z table using the TLID. Since this ID is permanent,
+it will also be useful if you need to update geocoded address entities using future Tiger/Line releases. 
+
+    Please note that the TLID will only be available if the JGeocoder is able to find an address level hit. 
+   
++---------------------------------------------------------------------------------------------------------------+
+
+create table tiger_4 ( TLID  numeric  not null,
+RTSQ  numeric  not null,
+FEAT1  numeric  not null,
+FEAT2  numeric  ,
+FEAT3  numeric  ,
+FEAT4  numeric  ,
+FEAT5  numeric  );
+
+create table tiger_5 ( FILE  varchar(5)  not null,
+FEAT  numeric  not null,
+FEDIRP  varchar(2)  ,
+FENAME  varchar(30)  ,
+FETYPE  varchar(4)  ,
+FEDIRS  varchar(2)  );
+
+create table tiger_6 ( TLID  numeric  not null,
+RTSQ  numeric  not null,
+FRADDL  varchar(11)  ,
+TOADDL  varchar(11)  ,
+FRADDR  varchar(11)  ,
+TOADDR  varchar(11)  ,
+FRIADDL  varchar(1)  ,
+TOIADDL  varchar(1)  ,
+FRIADDR  varchar(1)  ,
+TOIADDR  varchar(1)  ,
+ZIPL  varchar(5)  ,
+ZIPR  varchar(5)  );
+
+create table tiger_7 ( FILE  varchar(5)  not null,
+LAND  numeric  not null,
+SOURCE  varchar(1)  ,
+CFCC  varchar(3)  not null,
+LANAME  varchar(30)  ,
+LALONG  numeric  ,
+LALAT  numeric  ,
+FILLER  varchar(1)  );
+create table tiger_8 ( FILE  varchar(5)  not null,
+CENID  varchar(5)  not null,
+POLYID  numeric  not null,
+LAND  numeric  not null,
+FILLER  varchar(1)  );
+
+create table tiger_a ( FILE  varchar(5)  not null,
+CENID  varchar(5)  not null,
+POLYID  numeric  not null,
+STATECU  varchar(2)  not null,
+COUNTYCU  varchar(3)  not null,
+TRACT  varchar(6)  not null,
+BLOCK  varchar(4)  not null,
+BLOCKSUFCU  varchar(1)  ,
+RS_A1  varchar(1)  ,
+AIANHHFPCU  varchar(5)  ,
+AIANHHCU  varchar(4)  ,
+AIHHTLICU  varchar(1)  ,
+ANRCCU  varchar(5)  ,
+AITSCECU  varchar(3)  ,
+AITSCU  varchar(5)  ,
+CONCITCU  varchar(5)  ,
+COUSUBCU  varchar(5)  not null,
+SUBMCDCU  varchar(5)  ,
+PLACECU  varchar(5)  ,
+SDELMCU  varchar(5)  ,
+SDSECCU  varchar(5)  ,
+SDUNICU  varchar(5)  ,
+RS_A20  varchar(4)  ,
+RS_A21  varchar(4)  ,
+RS_A22  varchar(4)  ,
+CDCU  numeric  ,
+ZCTA5CU  varchar(5)  ,
+ZCTA3CU  varchar(3)  ,
+RS_A4  varchar(6)  ,
+SLDUCU  varchar(3)  ,
+SLDLCU  varchar(3)  ,
+RS_A7  varchar(5)  ,
+RS_A8  varchar(6)  ,
+RS_A9  varchar(6)  ,
+CBSACU  varchar(5)  ,
+CSACU  varchar(3)  ,
+NECTACU  varchar(5)  ,
+CNECTACU  varchar(3)  ,
+METDIVCU  varchar(5)  ,
+NECTADIVCU  varchar(5)  ,
+RS_A14  varchar(4)  ,
+UACU  varchar(5)  ,
+URCU  varchar(1)  ,
+RS_A17  varchar(6)  ,
+RS_A18  varchar(6)  ,
+RS_A19  varchar(11)  );
+
+create table tiger_b ( FILE  varchar(5)  not null,
+CENID  varchar(5)  not null,
+POLYID  numeric  not null,
+STATECQ  varchar(2)  not null,
+COUNTYCQ  varchar(3)  not null,
+TRACTCQ  varchar(6)  not null,
+BLOCKCQ  varchar(5)  not null,
+AIANHHFPCQ  varchar(5)  ,
+AIANHHCQ  varchar(4)  ,
+AIHHTLICQ  varchar(1)  ,
+AITSCECQ  varchar(3)  ,
+AITSCQ  varchar(5)  ,
+ANRCCQ  varchar(5)  ,
+CONCITCQ  varchar(5)  ,
+COUSUBCQ  varchar(5)  not null,
+SUBMCDCQ  varchar(5)  ,
+PLACECQ  varchar(5)  ,
+RS_B2  varchar(5)  ,
+RS_B3  varchar(1)  ,
+RS_B1  varchar(8)  );
+
+create table tiger_c ( STATE  varchar(2)  ,
+COUNTY  varchar(3)  ,
+DATAYR  varchar(4)  ,
+FIPS  varchar(5)  ,
+FIPSCC  varchar(2)  ,
+PLACEDC  varchar(1)  ,
+LSADC  varchar(2)  ,
+ENTITY  varchar(1)  not null,
+MA  varchar(4)  ,
+SD  varchar(5)  ,
+AIANHH  varchar(4)  ,
+VTDTRACT  varchar(6)  ,
+UAUGA  varchar(5)  ,
+AITSCE  varchar(3)  ,
+CASLD  varchar(3)  ,
+CBSANECTA  varchar(5)  ,
+COMMREG  varchar(1)  ,
+RS_C2  varchar(1)  ,
+NAME  varchar(60)  );
+
+create table tiger_e ( FILE  varchar(5)  not null,
+CENID  varchar(5)  not null,
+POLYID  numeric  not null,
+STATEEC  varchar(2)  not null,
+COUNTYEC  varchar(3)  not null,
+RS_E1  varchar(5)  ,
+RS_E2  varchar(5)  ,
+PLACEEC  varchar(5)  ,
+RS_E3  varchar(5)  ,
+RS_E4  varchar(4)  ,
+RS_E5  varchar(1)  ,
+COMMREGEC  varchar(1)  ,
+RS_E6  varchar(17)  );
+
+create table tiger_h ( FILE  varchar(5)  not null,
+TLID  numeric  not null,
+HIST  varchar(1)  ,
+SOURCE  varchar(1)  ,
+TLIDFR1  numeric  ,
+TLIDFR2  numeric  ,
+TLIDTO1  numeric  ,
+TLIDTO2  numeric  );
+
+create table tiger_i ( FILE  varchar(5)  not null,
+TLID  numeric  not null,
+TZIDS  numeric  not null,
+TZIDE  numeric  not null,
+CENIDL  varchar(5)  ,
+POLYIDL  numeric  ,
+CENIDR  varchar(5)  ,
+POLYIDR  numeric  ,
+RS_I4  varchar(10)  ,
+FTSEG  varchar(17)  ,
+RS_I1  varchar(10)  ,
+RS_I2  varchar(10)  ,
+RS_I3  varchar(10)  );
+
+create table tiger_m ( TLID  numeric  not null,
+RTSQ  numeric  not null,
+SOURCEID  varchar(10)  ,
+ID  varchar(18)  ,
+IDFLAG  varchar(1)  ,
+RS_M1  varchar(18)  ,
+RS_M2  varchar(2)  ,
+RS_M3  varchar(23)  );
+create table tiger_p ( FILE  varchar(5)  not null,
+CENID  varchar(5)  not null,
+POLYID  numeric  not null,
+POLYLONG  numeric  not null,
+POLYLAT  numeric  not null,
+WATER  varchar(1)  );
+create table tiger_r ( FILE  varchar(5)  not null,
+CENID  varchar(5)  not null,
+TLMAXID  numeric  not null,
+TLMINID  numeric  not null,
+TLIHGHID  numeric  not null,
+TZMAXID  numeric  not null,
+TZMINID  numeric  not null,
+TZHIGHID  numeric  not null,
+FILLER  varchar(1)  );
+
+create table tiger_s ( FILE  varchar(5)  not null,
+CENID  varchar(5)  not null,
+POLYID  numeric  not null,
+STATE  varchar(2)  not null,
+COUNTY  varchar(3)  not null,
+TRACT  varchar(6)  not null,
+BLOCK  varchar(4)  not null,
+BLKGRP  varchar(1)  not null,
+AIANHHFP  varchar(5)  ,
+AIANHH  varchar(4)  ,
+AIHHTLI  varchar(1)  ,
+ANRC  varchar(5)  ,
+AITSCE  varchar(3)  ,
+AITS  varchar(5)  ,
+CONCIT  varchar(5)  ,
+COUSUB  varchar(5)  not null,
+SUBMCD  varchar(5)  ,
+PLACE  varchar(5)  ,
+SDELM  varchar(5)  ,
+SDSEC  varchar(5)  ,
+SDUNI  varchar(5)  ,
+MSACMSA  varchar(4)  ,
+PMSA  varchar(4)  ,
+NECMA  varchar(4)  ,
+CD106  numeric  not null,
+CD108  numeric  ,
+PUMA5  varchar(5)  ,
+PUMA1  varchar(5)  ,
+ZCTA5  varchar(5)  ,
+ZCTA3  varchar(3)  ,
+TAZ  varchar(6)  ,
+TAZCOMB  varchar(6)  ,
+UA  varchar(5)  ,
+UR  varchar(1)  ,
+VTD  varchar(6)  ,
+SLDU  varchar(3)  ,
+SLDL  varchar(3)  ,
+UGA  varchar(5)  );
+
+create table tiger_t ( FILE  varchar(5)  not null,
+TZID  numeric  not null,
+SOURCE  varchar(10)  ,
+FTRP  varchar(17)  );
+create table tiger_u ( FILE  varchar(5)  not null,
+TZID  numeric  not null,
+RTSQ  numeric  not null,
+TLIDOV1  numeric  ,
+TLIDOV2  numeric  ,
+TLIDUN1  numeric  ,
+TLIDUN2  numeric  ,
+FRLONG  numeric  not null,
+FRLAT  numeric  not null);
+
+create table tiger_z ( TLID  numeric  not null,
+RTSQ  numeric  not null,
+ZIP4L  varchar(4)  ,
+ZIP4R  varchar(4)  );
++---------------------------------------------------------------------------------------------------------------+

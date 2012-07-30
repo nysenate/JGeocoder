@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+  <bannerLeft>
+    <name>JGeocoder - Free Java Geocoder </name>
+  </bannerLeft>
+  <skin>
+    <groupId>org.apache.maven.skins</groupId>
+    <artifactId>maven-stylus-skin</artifactId>
+    <version>1.0.1</version>
+  </skin>
+  <body>
+    <head>
+        <script src="http://www.google-analytics.com/urchin.js" type="text/javascript">
+        </script>
+        <script type="text/javascript">
+        _uacct = "UA-4236016-1";
+        urchinTracker();
+        </script>
+        <link href="data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAABmJLR0T///////8JWPfcAAAACXBIWXMAAABIAAAASABGyWs+AAAE3ElEQVRIx4WVS0xTWxSGv9MW5NHyqlB5CCrKS+mEElESY5wxUwe+EnWmmOiMONCBURMhOlEhkvhKJMaBiVFjYiQRg4iaFB2AgASl8iottKUtfZ2257R3sC/BeOG6Bmedtc/OWv/6/7X3kZL/GmtYNJpIJJNgtSqKJEFn55cvXi8sLclyRwcMDjqdR4/C7t2lpXY77N+v11dUwKFDtbUFBaDVarVaLWuatBYAq1VV43G4fdtq7eqCPXvKymZmQFESCZMJ3O5weHoa5ueDwffvYXTU7XY6obf3wwebDXJycnJcLnj9uqkpEIBdu2pqtmz5LwDNnws9PeGwokBLS3f3w4fQ0FBSYrPB/Hwo1NwMVVX5+Zs3Q1GRwXDtGqSl6XSZmZCaqtFoNAAGA4DfL/I0Nt67J8vw8mVPz8eP/wPg+3dFUVVobe3vr6gAs7mwsKsL4vFEIhIRBaemICMjmTSZwGLJz/d4QFUTCVWFcDgeHx2F4uKNG00mAEkS1OfktLTAgQO9vadPg91ut9vtqwCoq7t8eWoKAoFYLBYDlysU8vvB6QwExseFDwSgr29u7u5dsNmWloaGwGjMyHj3DqJRRUlNBbvd7Z6eBkhLu3ULQKt9+xYgFhsdhdramzdnZ2FZeI3PpyjJJMiyLCsKDAwMDn79Cl6vLMsyOBzB4OyskODSJZibCwRGRmB2Nhjctw+mpvx+gMVFWRZ9RyKRCEBKyo0bAMmkogCIp9cbDre2gs/n8/l8oOvuXlxMJEBAEHOfmgqTk2KD3y/W09NTUvx+0Gol6fx5+PZtfh5geloAsNkWFuJx0WksBqCqomQgUFMj8k5MgMmkqjYbWK1Wq9UKuvl5WRZaLQMIBlNS4NevHz/a28HtLiq6cAF8vmDwwQMwGrOyrl4FjycQOHFCJBYiRiJut3jbsUPEIlKU0VFISVGUjAzIzoayMrDZbDabDXSyHA4LxF6v17syHKqaSJjN4PMFAj09glIAj0dVh4dF4bNnRYdXrohYMKDTBYOiIUkCSQqHNRooLIS6OsjLSyQqKkCv1+v1etAcPGg0is7FkIHH4/EIVRcXBTCfT3gB1OcT38PhR4+ExuXlvzcwMSGGbmLi1SsoKUkk9u6FDRvAbAaHw+Mxm8FisVgsFtBs3Zqfn5UF5eUWi0gktAeXy+UCcDqdTuFnZgCGhn7+FAUFVwsL27cLv7DwOxDhi4uTyfp6wUB9PWRne72fP0N1dXV1dfVvx/DMmaamggKQpFAoFBKzIKhc9ktLS0ug0eh0169Deros5+UBTE5evLjyfdmvW6coigKRiNfb2CjgrF8P584dO2axrHIVL5/Lbdvu33e5QJJevPj0CRwOv9/vh3A4Go1GYdOmysqBAZicHB+3WMSp0GohL09oajQaDAYDGI0iVlVRyGw2GJ4+hc7OO3c6OkCSJEmSVvkXLEdHjrS39/TA7OzwcHY2JJOCiezszMzpafD7Q6HSUtBqxRWclZWenp6+AuTNm5GRkRE4edJstlqhra2trbUVdDqdTqdbhQHWsMePnz93OODJk76+Z8+guzsU2rkTTKZ4XEy9uHgWF12uyUlobq6s7O+Hw4ePHz91ChoaGhoaGlY6/tP+CmDZvF4xVGNjY2NjY2vvq6qqqqqqgtzc3Nzc3L9lhX8AYubeh6IfwykAAAAASUVORK5CYII=" rel="icon" type="image/x-icon" />        
+    </head>
+    
+    <menu name="JGeocoder">
+      <item name="About"    href="index.html" />    
+      <item name="Address Parser"    href="parser.html" />
+      <item name="Data Import"    href="import.html" />
+      <item name="Geocoder"    href="geocoder.html" />      
+      <item name="Installation"    href="installation.html" />
+      <item name="FAQ"    href="faq.html" />
+      <item name="Contribute"    href="contribute.html" />
+      <item name="Known Issues"    href="issues.html" />                
+    </menu>          
+    <menu name="Example">
+      <item name="Quick Start"    href="quick.html" />    
+      <item name="API Usage"    href="usage.html" />
+    </menu>    
+    <menu ref="reports"/>
+    <menu name="Links">
+      <item name="Project Page"    href="http://sourceforge.net/projects/jgeocoder" />
+      <item name="Download" href="http://sourceforge.net/project/showfiles.php?group_id=223677" />
+      <item name="Tiger/Line"    href="http://www.census.gov/geo/www/tiger/" />
+      <item name="Groovy"    href="http://groovy.codehaus.org" />
+    </menu>    
+  </body>
+</project>

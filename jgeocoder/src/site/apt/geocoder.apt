@@ -1,0 +1,110 @@
+                                    ------
+                                    Examples
+                                    ------
+                                    Jay Liang
+                                    ------
+                                     2008/06/15
+
++---------------------------------------------------------------------------------------------------------------+
+Under construction, I am really busy recently. So I can only
+write about the development plan but not able to do much real development work. If this sounds interesting to you please
+contact me. I believe a java based geocoder will have a usecase in many applications. 
++---------------------------------------------------------------------------------------------------------------+     
+
+Geocoding
+
+    Once the Tiger/Line data is loaded into a relational database, it's actually not hard to estimate the lat/lon
+of a parsed and normalized address. Given the schema that was described in {{{import.html}Data import module}}, the 
+geocoding query will look something like the following:
+
++---------------------------------------------------------------------------------------------------------------+
+--here we are querying the PA table
+select t.tlid, t.fraddr, t.fraddl, t.toaddr, t.toaddl, 
+ t.zipL, t.zipR, t.tolat, t.tolong, t.frlong, t.frlat,  
+ t.long1, t.lat1, t.long2, t.lat2, t.long3, t.lat3, t.long4, t.lat4,
+ t.long5, t.lat5, t.long6, t.lat6, t.long7, t.lat7, t.long8, t.lat8,
+ t.long9, t.lat9, t.long10, t.lat10, t.fedirp, t.fetype, t.fedirs from TIGER_PA t 
+ where t.fename = $street and 
+( 
+       (t.fraddL <= $num and t.toaddL >= $num) or (t.fraddL >= $num and t.toaddL <= $num) 
+    or (t.fraddR <= $num and t.toaddR >= $num) or (t.fraddR >= $num and t.toaddR <= $num) 
+)  
+  and (t.zipL = $zip or t.zipR = $zip)
++---------------------------------------------------------------------------------------------------------------+
+
+    The above query will return a lat/lon range of which can be used to geocode the input address.  
+    
+Filling in missing information
+
+    It's very common that an input address will be missing some information. Since we have an address database,
+we can definitely fill in the blanks. For example, given a zip code, we can fill in city, state if they are missing.
+Given just the city and state, we can figure out the zip code. The street types ('Street', 'Road', etc) and directions
+can be filled in also if they are missing.
+    
+    For example:
+    
++---------------------------------------------------------------------------------------------------------------+
+123 South Main, Monkey Town, 19147  -> 123 S MAIN AVE, MONKEY TOWN, PA 19147 
++---------------------------------------------------------------------------------------------------------------+
+
+Geocoding with JGeocoder in action
+
+    <<see {{{usage.html}Usage}} for details>>
+
++---------------------------------------------------------------------------------------------------------------+
+    JGeocoderConfig config = new JGeocoderConfig();
+    //you need to point JGeocoder to the data files
+    config.setJgeocoderDataHome("C:\\Users\\jliang\\Desktop\\jgeocoder\\data");
+    //and give JGeocoder a datasource object that contains Tiger/Line data
+    config.setTigerDataSource(H2DbDataSourceFactory.getH2DbDataSource("jdbc:h2:C:\\Users\\jliang\\Desktop\\jgeocoder\\tiger\\tiger;LOG=0"));
+    JGeocoder jg = new JGeocoder(config);
+    JGeocodeAddress addr = jg.geocodeAddress("lazaros pizza house 1743 south st philadelphia pa 19146");
+    System.out.println(addr);
++---------------------------------------------------------------------------------------------------------------+
+
+    The above outputs
+    
++---------------------------------------------------------------------------------------------------------------+    
+net.sourceforge.jgeocoder.JGeocodeAddress@4c4975[
+  _parsedAddr={NAME=lazaros pizza house, PREDIR=null, TYPE=st, STATE=pa, NUMBER=1743, CITY=philadelphia, STREET=south, ZIP=19146}
+  _normalizedAddr={NAME=LAZAROS PIZZA HOUSE, PREDIR=null, TYPE=ST, NUMBER=1743, STATE=PA, CITY=PHILADELPHIA, STREET=SOUTH, ZIP=19146}
+  _geocodedAddr={NAME=LAZAROS PIZZA HOUSE, PREDIR=null, TLID=131407785, NUMBER=1743, CITY=PHILADELPHIA, COUNTY=PHILADELPHIA, LAT=39.944244, LON=-75.171906, TYPE=ST, STATE=PA, STREET=SOUTH, ZIP=19146, POSTDIR=null}
+  _acuracy=STREET
+]
++---------------------------------------------------------------------------------------------------------------+    
+
+Development Plan
+
++---------------------------------------------------------------------------------------------------------------+
+I am actively working on fuzzy search and performance
++---------------------------------------------------------------------------------------------------------------+
+
+Adding fuzziness to the search
+
+     While the above query works, it however requires the inputs address component matches exactly to what is stored in the
+address database. For example, if there is a street named 'Petersons Street', then inputs of {'Peterson', 'Street'} and
+{'Petreson', 'Street'} (spelling) will not find a match. Therefore, it would be a good idea to allow some errors in the
+inputs by using fuzzy search/match techniques. 
+
+     Many commercial quality geocoders have some form of fuzzy match feature (google map for instance). If you are interested in how to
+implement something similar, you can take a look at this article about {{{http://norvig.com/spell-correct.html}spell-corrector}} from Peter Norvig.
+
+Performance 
+
+    I have no ideas what the performance will ending up to be, but 200/sec without fuzzy search and 100/sec with fuzzy search will be good
+targets to aim for. 
+ 
+Making geocoding available online
+
+    It will be nice if I can put up a web accessible interface for JGeocoder. I am not looking to make money off this project so
+I can't really afford any hosting fees. Luckily google has some free hosting solutions thru its app engine service. I really want to
+port this project to python so that I can host it on google.
+
+    There are a few challenges about this:
+    
+    *    I don't know python at all, so I need to either find sometime to learn it or get some python developers to help me with this.
+    
+    *    Google's app engine only offers 500MB of free storage, that's probably not gonna be enough to host the entire tiger/line database
+so I need to figure something else out. I don't really want to spend any money, but $0.15 - $0.18 per GB-month of storage on google is very affordable.
+
+    {{http://www.google.com/intl/en/press/annc/20080527_google_io.html}}
