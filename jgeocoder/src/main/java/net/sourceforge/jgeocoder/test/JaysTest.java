@@ -19,8 +19,8 @@ import net.sourceforge.jgeocoder.tiger.JGeocoderConfig;
 class JaysTest{
   public static void main(String[] args) {
     JGeocoderConfig config = new JGeocoderConfig();
-    config.setJgeocoderDataHome("C:\\Users\\jliang\\Desktop\\jgeocoder\\data");
-    config.setTigerDataSource(H2DbDataSourceFactory.getH2DbDataSource("jdbc:h2:C:\\Users\\jliang\\Desktop\\jgeocoder\\tiger\\tiger;LOG=0;UNDO_LOG=0"));
+    config.setJgeocoderDataHome("C:\\jgeocoder\\data");
+    config.setTigerDataSource(H2DbDataSourceFactory.getH2DbDataSource("jdbc:h2:C:\\jgeocoder\\tiger\\tiger;LOG=0;UNDO_LOG=0"));
     JGeocoder jg = new JGeocoder(config);
     long start = System.currentTimeMillis();
 //    for(int i =0; i<100; i++){

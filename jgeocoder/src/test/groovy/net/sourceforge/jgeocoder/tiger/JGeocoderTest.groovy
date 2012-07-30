@@ -2,9 +2,10 @@
  * 
  */
 package net.sourceforge.jgeocoder.tiger
-import org.junit.Test
+import org.junit.Test
 import org.junit.runner.JUnitCore
-import net.sourceforge.jgeocoder.AddressComponentimport net.sourceforge.jgeocoder.JGeocodeAddress
+import net.sourceforge.jgeocoder.AddressComponent
+import net.sourceforge.jgeocoder.JGeocodeAddress
 
 /**
  * @author jliang

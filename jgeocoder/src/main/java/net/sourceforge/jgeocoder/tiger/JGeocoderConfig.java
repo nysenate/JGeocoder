@@ -18,7 +18,7 @@ public class JGeocoderConfig implements Serializable{
   private static final long serialVersionUID = 20080604L;
   public static final JGeocoderConfig DEFAULT = new JGeocoderConfig();
   private String _jgeocoderDataHome = 
-    CommonUtils.nvl(System.getProperty("jgeocoder.data.home"), "/usr/local/jgeocoder/data");
+    CommonUtils.nvl(System.getProperty("jgeocoder.data.home"), "/jgeocoder/data");
 
   private DataSource _tigerDataSource = null; 
    
