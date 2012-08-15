@@ -1,14 +1,17 @@
-import com.sun.org.apache.xalan.internal.xsltc.cmdline.getopt.IllegalArgumentExceptionimport java.sql.DriverManager
+import com.sun.org.apache.xalan.internal.xsltc.cmdline.getopt.IllegalArgumentException
+import java.sql.DriverManager
 import java.sql.Connection
 import groovy.sql.Sql
 import org.apache.commons.lang.StringUtils
 import java.sql.Driver
-/* no longer valid 
+/*no longer valid
+
 DriverManager.registerDriver((Driver)getClass().getClassLoader().loadClass('org.h2.Driver').newInstance())
-Connection conn = DriverManager.getConnection("jdbc:h2:/home/jliang/Desktop/h2db/testdb", 
+Connection conn = DriverManager.getConnection("jdbc:h2:C:\Users\Bobby\tiger_ny", 
     new Properties(), getClass().getClassLoader())
 Sql db = new Sql(conn)
-testQuery(db, '8', 'SNYDER', null, null, null, '19148')
+
+testQuery(db, '8', 'SNYDER', null, null, null, '19148')
 
 db.close()
 
@@ -24,4 +27,4 @@ def testQuery(Sql db,def num, def street, def type, def predir, def postdir, def
   println criterias  println sql
   db.eachRow(sql, criterias){    println it
   }
-}*/
+}

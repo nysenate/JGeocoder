@@ -13,7 +13,7 @@ import org.h2.jdbcx.JdbcDataSource;
 public class H2DbDataSourceFactory{
   private H2DbDataSourceFactory(){}
   private static String _tigerUrl =
-    CommonUtils.nvl(System.getProperty("jgeocoder.tiger.url"), "jdbc:h2:/usr/local/jgeocoder/tiger/tiger;LOG=0;UNDO_LOG=0");
+    CommonUtils.nvl(System.getProperty("jgeocoder.tiger.url"), "jdbc:h2:C:/Users/Bobby/tiger_ny;LOG=0;UNDO_LOG=0");
 
   public static DataSource getH2DbDataSource(){
     return getH2DbDataSource(_tigerUrl);

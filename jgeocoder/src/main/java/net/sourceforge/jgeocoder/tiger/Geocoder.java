@@ -99,7 +99,7 @@ class Geocoder {
 //    ---If no, trim the ratio so that it applies only to this segment and return calculated point.
     float thisLen, thisRatio, useStartLon=frlong, useStartLat=frlat, useEndLon=tolong, useEndLat=tolat, useRatio=ratio;
 
-    for (int i=0; i<240; i++){
+    for (int i=0; i<latArray.length; i++){
         if(latArray[i] != 0 && !found){
               thisLen = getLineDistance(longArray[i], latArray[i], lastLon, lastLat);
               thisRatio = thisLen / totalLength;
@@ -140,7 +140,7 @@ class Geocoder {
      float[] latArray, float[] longArray){
     Distance ret = new Distance();
     float lastLat = frlat, lastLon = frlong;
-    for(int i=0; i<240; i++){
+    for(int i=0; i<latArray.length; i++){
         if (latArray[i] != 0f){
             ret.totalLat+=Math.abs(latArray[i] - lastLat);
             ret.totalLon+=Math.abs(longArray[i] - lastLon);
