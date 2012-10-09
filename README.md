@@ -30,7 +30,7 @@ You can use something else by just changing a bit of code in `import_tiger_main.
 Download the Data
 --------------------
 
-Go to ftp://ftp2.census.gov/geo/tiger/TIGER2011/ADDRFEAT/ and download all the files address feature files you are interested in. Files for the state of NY start all start with 36 and are in the range 36001-36123. Other states will follow a similar pattern. Extract all the files into their own folders, stored in one parent folder.
+Go to ftp://ftp2.census.gov/geo/tiger/TIGER2011/ADDRFEAT/ and download all the files address feature files you are interested in. Files for the state of NY all start with 36 and are in the range 36001-36123. Other states will follow a similar pattern. Extract all the files into their own folders, stored in one parent folder.
 
 
 Convert the Shape Files
@@ -38,13 +38,17 @@ Convert the Shape Files
 
 Install Python and the `pyshp` library: http://pypi.python.org/pypi/pyshp
 
-Edit convertShapefile.py:93, setting the outputFile to the directory that contains the `jgeocoder-import/src/main/groovy/import_tiger_main.groovy` file.
+Edit `convertShapefile.py:93`, setting the outputFile to the directory that contains the `jgeocoder-import/src/main/groovy/import_tiger_main.groovy` file.
 
 Edit `import_tiger_main.groovy`, specifying where you want to save your database.
 
 Run `groovy import_tiger_main.groovy` from the directory that contains the `jgeocoder-import/src/main/groovy/import_tiger_main.groovy` file
 
 Edit the `H2DbDataSourceFactory.java` to reflect where the H2 database is stored, on the line `config.setTigerDataSource(H2DbDataSourceFactory.getH2DbDataSource(`
+
+
+Running a Test
+-----------------
 
 Save the `Data` folder containing the three JDB files somewhere on your harddrive, and specify its location in `BobbysTest.java`
 
