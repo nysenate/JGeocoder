@@ -68,33 +68,11 @@
         </dependency>
       </dependencies>
   </dependencyManagement>
-  <repositories>
-      <repository>
-          <releases>
-              <updatePolicy>never</updatePolicy>
-              <checksumPolicy>warn</checksumPolicy>
-              <enabled>true</enabled>
-          </releases>
-          <id>jgeocoder2</id>
-          <name>jgeocoder repo</name>
-          <url>http://www.cs.drexel.edu/~zl25/maven2/repo</url>
-      </repository>
-    <repository>
-          <releases>
-              <updatePolicy>never</updatePolicy>
-              <checksumPolicy>warn</checksumPolicy>
-              <enabled>true</enabled>
-          </releases>
-          <id>jgeocoder</id>
-          <name>jgeocoder snapshot</name>
-          <url>http://www.cs.drexel.edu/~zl25/maven2/snapshot</url>
-      </repository>      
-  </repositories>      
   <dependencies>
       <dependency>
           <groupId>net.sourceforge.jgeocoder</groupId>
           <artifactId>jgeocoder</artifactId>
-          <version>0.3-SNAPSHOT</version>
+          <version>0.5-SNAPSHOT</version>
       </dependency>
     <dependency>
        <groupId>org.codehaus.groovy </groupId>
