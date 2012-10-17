@@ -11,9 +11,22 @@ import java.util.zip.ZipEntry
 import TigerDefinition
 import TigerTable
 import groovy.sql.Sql
+//import net.sourceforge.jgeocoder
+//import net.sourceforge.jgeocoder.us.AddressParser;
+
+//import net.sourceforge.jgeocoder.us.AddressParser;
+
 import org.apache.commons.lang.StringUtils
+@Grab(group='net.sourceforge.jgeocoder', module='jgeocoder', version='1.0-SNAPSHOT')
 
 @Grab(group='commons-lang', module='commons-lang', version='2.4')
+import net.sourceforge.jgeocoder.us.AddressParser;
+import net.sourceforge.jgeocoder.AddressComponent;
+import net.sourceforge.jgeocoder.us.AddressStandardizer;
+import static net.sourceforge.jgeocoder.AddressComponent.POSTDIR;
+import static net.sourceforge.jgeocoder.AddressComponent.PREDIR;
+import static net.sourceforge.jgeocoder.AddressComponent.TYPE;
+import static net.sourceforge.jgeocoder.AddressComponent.STREET;
 
 def nvl(def val, def replacement){ val==null?replacement:val}
 
@@ -41,6 +54,10 @@ sql.execute("""
         ARIDL  varchar(22),
         ARIDR  varchar(22),
         LINEARID  varchar(22),
+        FEDIRP  varchar(2)  ,
+	    FENAME  varchar(30)  ,
+	    FETYPE  varchar(4)  ,
+	    FEDIRS  varchar(2)  ,
         FULLNAME  varchar(100),
         FRADDL varchar(12), 
         TOADDL  varchar(12),
@@ -80,6 +97,19 @@ new File(/tiger_main.csv/).eachLine{
   }
   values = Arrays.asList(values)
   try {
+  Map<AddressComponent, String> m
+  if (values[9]!=null){  	m  = AddressParser.parseAddress("103 "+values[4]+" "+values[9])}
+  else { m  = AddressParser.parseAddress("103 "+values[4]+" "+values[10])}
+    m = AddressStandardizer.normalizeParsedAddress(m)
+    String fedirp
+    if (m.get(PREDIR)==null){fedirp="NULL"}
+    else{fedirp="'"+m.get(PREDIR)+"'"}
+    String fedirs
+    if (m.get(POSTDIR)=="null"){fedirs="NULL"}
+    else{FEDIRS="'"+m.get(PREDIR)+"'"}
+    String fetype
+    if (m.get(TYPE)=="null"){fetype="NULL"}
+    else{FETYPE="'"+m.get(TYPE)+"'"}
 
     sql.execute("""
   insert into TIGER_NY( 
@@ -87,6 +117,10 @@ new File(/tiger_main.csv/).eachLine{
       ARIDL,
       ARIDR,
       LINEARID,
+      FEDIRP,
+      FENAME,
+      FETYPE,
+      FEDIRS,
       FULLNAME,
       FRADDL, 
       TOADDL,
@@ -109,11 +143,11 @@ new File(/tiger_main.csv/).eachLine{
       NUMPARTS,
       SHAPETYPE,
       LATLONGPAIRS) 
-  values (?,?,?,?,?, ?,?,?,?,?, ?,?,?,?,?, ?,?,?,?,?, ?,?,?,?,?, ?)
+  values (?,?,?,?, """+fedirp+""",'"""+ m.get(STREET)+"""',"""+ fedirs+""","""+  fetype+""",?,?,?,?,?,?, ?,?,?,?,?, ?,?,?,?,?, ?,?,?,?,?, ?)
         """, values)
   } catch (Exception e) {
     error++
-    //ps.println it
+    ps.println it
       println e.message
   }
 }
@@ -123,7 +157,7 @@ println "error="+error
 
 println 'creating indicies on TIGER_NY'
 sql.execute('create index IDX0_TIGER_NY on TIGER_NY(tlid)')
-sql.execute('create index IDX1_TIGER_NY on TIGER_NY(fullname)')
+sql.execute('create index IDX1_TIGER_NY on TIGER_NY(fename)')
 sql.execute('create index IDX2_TIGER_NY on TIGER_NY(fraddL)')
 sql.execute('create index IDX3_TIGER_NY on TIGER_NY(toaddL)')
 sql.execute('create index IDX4_TIGER_NY on TIGER_NY(fraddR)')
