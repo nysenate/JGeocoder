@@ -221,7 +221,7 @@ class TigerLineDao{
         hit.latArray = new float[latlongpoints.length];
         hit.longArray = new float[latlongpoints.length];
         for (int j=0; j<latlongpoints.length; j++){
-            String pair = latlongpoints[i];
+            String pair = latlongpoints[j];
             pair = pair.replace("(", "");
             pair = pair.replace(")", "");
             String[] splitpair = pair.split(";");
