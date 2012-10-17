@@ -95,14 +95,15 @@ class TigerQueryFailedException extends Exception{
 class TigerLineDao{
   
   
-  private static final String TIGER_QUERY = "select t.tlid, t.fraddr, t.fraddl, t.toaddr, t.toaddl,"+ 
-" t.zipL, t.zipR," +
-//" t.tolat, t.tolong, t.frlong, t.frlat,"+ 
+  private static final String TIGER_QUERY = "SELECT *"+
+		  /*"select t.tlid, t.fraddr, t.fraddl, t.toaddr, t.toaddl,"+
+" t.zipL, t.zipR, " +
+//" t.tolat, t.tolong, t.frlong, t.frlat,"+
 "t.bbox, t.latlongpairs, t.fullname"+
-          //" t.fedirp, t.fetype, t.fedirs " +
-          " from TIGER_{0} t where (t.zipL = ? or t.zipR = ?) and t.fullname regexp ? and "+
+		  " t.fedirp, t.fetype, t.fedirs " +*/
+		  " from TIGER_{0} t where t.fename = ? and (t.zipL = ? or t.zipR = ?) and"+
           "(" + 
-          "       (t.fraddL <= ? and t.toaddL >= ?) or (t.fraddL >= ? and t.toaddL <= ?) "+
+		  "(t.fraddL <= ? and t.toaddL >= ?) or (t.fraddL >= ? and t.toaddL <= ?) "+
           "    or (t.fraddR <= ? and t.toaddR >= ?) or (t.fraddR >= ? and t.toaddR <= ?))";
   private DataSource _tigerDs;
   public TigerLineDao(DataSource tigerDs){
@@ -193,9 +194,9 @@ class TigerLineDao{
      
       ps = conn.prepareStatement(generateSelectQuery(normalizedAddr.get(AddressComponent.STATE)));
       int i=1;
+      ps.setString(i++, normalizedAddr.get(AddressComponent.STREET));
       ps.setString(i++, zip);
       ps.setString(i++, zip);
-      ps.setString(i++, (".*"+normalizedAddr.get(AddressComponent.STREET)+".*"));
       ps.setString(i++, streetNum);
       ps.setString(i++, streetNum);
       ps.setString(i++, streetNum);
@@ -236,12 +237,9 @@ class TigerLineDao{
         hit.frLat = new Float(firstpairPieces[1]);
         hit.toLon = new Float(lastpairPieces[0]);
         hit.toLat = new Float(lastpairPieces[1]);
-        String fullname = ("103 "+rs.getString("fullname")+" "+hit.zipL);
-        Map<AddressComponent, String> m  = AddressParser.parseAddress(fullname);
-        m = AddressStandardizer.normalizeParsedAddress(m);
-        hit.fedirp = m.get(PREDIR);
-        hit.fedirs = m.get(POSTDIR);
-        hit.fetype = m.get(TYPE);
+        hit.fedirp = rs.getString("fedirp");
+        hit.fedirs = rs.getString("fedirs");
+        hit.fetype = rs.getString("fetype");
         ret.add(hit);
       }
     } catch (Exception e) {
