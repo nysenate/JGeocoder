@@ -1,0 +1,11 @@
+#################
+## Eclipse
+#################
+
+.classpath
+.settings
+bin
+lib
+local
+.project
+jars
