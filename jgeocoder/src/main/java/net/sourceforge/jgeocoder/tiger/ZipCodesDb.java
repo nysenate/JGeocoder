@@ -278,6 +278,7 @@ class ZipCodeDAO{
   }
   
   public boolean fillInCSByZip(Map<AddressComponent, String> m, String zip) throws DatabaseException{
+	  System.out.println(m.toString());
     return fillInCSByZip(m, _zipCodeByZip.get(zip));
   }
   

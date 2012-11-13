@@ -15,18 +15,29 @@ import groovy.sql.Sql
 //import net.sourceforge.jgeocoder.us.AddressParser;
 
 //import net.sourceforge.jgeocoder.us.AddressParser;
-
 import org.apache.commons.lang.StringUtils
-@Grab(group='net.sourceforge.jgeocoder', module='jgeocoder', version='1.0-SNAPSHOT')
+
+//def loader = this.class.classLoader.rootLoader
+//loader.addURL(new File("C:/Users/Gateway/Documents/GitHub/JGeocoder/jgeocoder-import/jars/jgeocoder.jar").toURI().toURL())
+// can't use traditional package import
+//AliasResolver = Class.forName("net.sourceforge.jgeocoder.us.AliasResolver")
+
+
+//@Grab(group='net.sourceforge.jgeocoder', module='jgeocoder', version='1.0-SNAPSHOT')
 
 @Grab(group='commons-lang', module='commons-lang', version='2.4')
 import net.sourceforge.jgeocoder.us.AddressParser;
 import net.sourceforge.jgeocoder.AddressComponent;
 import net.sourceforge.jgeocoder.us.AddressStandardizer;
+//import net.sourceforge.jgeocoder.us.AliasResolver; //(Marking for possible delete)
 import static net.sourceforge.jgeocoder.AddressComponent.POSTDIR;
 import static net.sourceforge.jgeocoder.AddressComponent.PREDIR;
 import static net.sourceforge.jgeocoder.AddressComponent.TYPE;
 import static net.sourceforge.jgeocoder.AddressComponent.STREET;
+@GrabConfig(systemClassLoader=true)
+@Grab(group='com.h2database', module='h2', version='1.3.168')
+
+
 
 def nvl(def val, def replacement){ val==null?replacement:val}
 
@@ -44,38 +55,40 @@ DriverManager.registerDriver((Driver)getClass().getClassLoader().loadClass(confi
 println(config.driverClass)
 //this is calling a private method of DriverManager :D 
 //because the maven classloader does not have the driver class
-Connection conn = DriverManager.getConnection("jdbc:h2:C:\\Users\\Bobby\\tiger_ny;LOG=0;UNDO_LOG=0;IGNORECASE=TRUE")//, "Sa","")
+// connectiontype:drivername:dbpath;option1;option2;option3
+Connection conn = DriverManager.getConnection("jdbc:h2:C:\\Users\\Gateway\\Documents\\GitHub\\JGeocoder\\local\\street_data.h2;LOG=0;UNDO_LOG=0;IGNORECASE=TRUE")//, "Sa","")
   //  new Properties(), getClass().getClassLoader())
 println(conn)
     
 Sql sql = new Sql(conn)
+sql.execute("""DROP TABLE IF EXISTS TIGER_NY""");
 sql.execute("""
     create table TIGER_NY ( TLID numeric not null, 
-        ARIDL  varchar(22),
-        ARIDR  varchar(22),
-        LINEARID  varchar(22),
-        FEDIRP  varchar(2)  ,
-	    FENAME  varchar(30)  ,
-	    FETYPE  varchar(4)  ,
-	    FEDIRS  varchar(2)  ,
-        FULLNAME  varchar(100),
-        FRADDL varchar(12), 
-        TOADDL  varchar(12),
-        FRADDR  varchar(12),
-        TOADDR  varchar(12),
-        ZIPL varchar(5),
-        ZIPR varchar (5),
-        EDGEMTFCC  varchar(5),
-        PARITYL varchar(1), 
-        PARITYR  varchar(1), 
-        PLUS4L  varchar(4),
-        PLUS4R  varchar(4),
-        LFROMTYP  varchar(1),
-        LTOTYP  varchar(1),
-        RFROMTYP  varchar(1),
-        RTOTYP  varchar(1),
-        OFFSETL  varchar(1),
-        OFFSETR  varchar(1),
+        ARIDL  varchar(255),
+        ARIDR  varchar(255),
+        LINEARID  varchar(255),
+        FEDIRP  varchar(255)  ,
+        FENAME  varchar(255)  ,
+        FETYPE  varchar(255)  ,
+        FEDIRS  varchar(255)  ,
+        FULLNAME  varchar(255),
+        FRADDL varchar(255), 
+        TOADDL  varchar(255),
+        FRADDR  varchar(255),
+        TOADDR  varchar(255),
+        ZIPL varchar(255),
+        ZIPR varchar (255),
+        EDGEMTFCC  varchar(255),
+        PARITYL varchar(255), 
+        PARITYR  varchar(255), 
+        PLUS4L  varchar(255),
+        PLUS4R  varchar(255),
+        LFROMTYP  varchar(255),
+        LTOTYP  varchar(255),
+        RFROMTYP  varchar(255),
+        RTOTYP  varchar(255),
+        OFFSETL  varchar(255),
+        OFFSETR  varchar(255),
         BBOX text,
         NUMPARTS text,
         SHAPETYPE numeric, 
@@ -86,7 +99,7 @@ sql.execute("""
 
 PrintStream ps = new PrintStream(new BufferedOutputStream(new FileOutputStream(/error.csv/)))
 int total = 0, error =0;
-new File(/tiger_main.csv/).eachLine{
+new File(/C:\Users\Gateway\Documents\GitHub\JGeocoder\jgeocoder-import\src\main\groovy\ConvertedData.csv/).eachLine{
   if((total++)%10000==0){
     println total
     sql.commit()
@@ -95,61 +108,68 @@ new File(/tiger_main.csv/).eachLine{
   values.eachWithIndex(){v, idx->
     if(StringUtils.isBlank(v) || v=='null'){ values[idx] = null}
   }
-  values = Arrays.asList(values)
-  try {
-  Map<AddressComponent, String> m
-  if (values[9]!=null){  	m  = AddressParser.parseAddress("103 "+values[4]+" "+values[9])}
-  else { m  = AddressParser.parseAddress("103 "+values[4]+" "+values[10])}
-    m = AddressStandardizer.normalizeParsedAddress(m)
-    String fedirp
-    if (m.get(PREDIR)==null){fedirp="NULL"}
-    else{fedirp="'"+m.get(PREDIR)+"'"}
-    String fedirs
-    if (m.get(POSTDIR)=="null"){fedirs="NULL"}
-    else{FEDIRS="'"+m.get(PREDIR)+"'"}
-    String fetype
-    if (m.get(TYPE)=="null"){fetype="NULL"}
-    else{FETYPE="'"+m.get(TYPE)+"'"}
+  values = new ArrayList<Object>(Arrays.asList(values))
 
-    sql.execute("""
-  insert into TIGER_NY( 
-      TLID,
-      ARIDL,
-      ARIDR,
-      LINEARID,
-      FEDIRP,
-      FENAME,
-      FETYPE,
-      FEDIRS,
-      FULLNAME,
-      FRADDL, 
-      TOADDL,
-      FRADDR,
-      TOADDR,
-      ZIPL,
-      ZIPR,
-      EDGEMTFCC,
-      PARITYL,
-      PARITYR,
-      PLUS4L,
-      PLUS4R,
-      LFROMTYP,
-      LTOTYP,
-      RFROMTYP,
-      RTOTYP,
-      OFFSETL,
-      OFFSETR,
-      BBOX,
-      NUMPARTS,
-      SHAPETYPE,
-      LATLONGPAIRS) 
-  values (?,?,?,?, """+fedirp+""",'"""+ m.get(STREET)+"""',"""+ fedirs+""","""+  fetype+""",?,?,?,?,?,?, ?,?,?,?,?, ?,?,?,?,?, ?,?,?,?,?, ?)
-        """, values)
-  } catch (Exception e) {
-    error++
-    ps.println it
-      println e.message
-  }
+  Map<AddressComponent, String> m
+  try {
+      if (values[9]!=null){      m  = AddressParser.parseAddress("103 "+values[4]+" "+values[9])}
+      else { m  = AddressParser.parseAddress("103 "+values[4]+" "+values[10])}
+      if( m == null) {
+          println("error parsing "+values)
+          
+      } else {
+        m = AddressStandardizer.normalizeParsedAddress(m)
+        String fedirp
+        if (m.get(PREDIR)==null){fedirp="NULL"}
+        else{fedirp="'"+m.get(PREDIR)+"'"}
+        String fedirs
+        if (m.get(POSTDIR)=="null"){fedirs="NULL"}
+        else{FEDIRS="'"+m.get(PREDIR)+"'"}
+        String fetype
+        if (m.get(TYPE)=="null"){fetype="NULL"}
+        else{FETYPE="'"+m.get(TYPE)+"'"}
+    
+        values.addAll(Arrays.asList(m.get(STREET),fetype,fedirs));
+        
+        sql.execute("""
+      insert into TIGER_NY( 
+          TLID,
+          ARIDL,
+          ARIDR,
+          LINEARID,
+          FULLNAME,
+          FRADDL, 
+          TOADDL,
+          FRADDR,
+          TOADDR,
+          ZIPL,
+          ZIPR,
+          EDGEMTFCC,
+          PARITYL,
+          PARITYR,
+          PLUS4L,
+          PLUS4R,
+          LFROMTYP,
+          LTOTYP,
+          RFROMTYP,
+          RTOTYP,
+          OFFSETL,
+          OFFSETR,
+          BBOX,
+          NUMPARTS,
+          SHAPETYPE,
+          LATLONGPAIRS,
+          FEDIRP,
+          FENAME,
+          FETYPE,
+          FEDIRS) 
+      values (?,?,?,?,?,?,?,?,?,?, ?,?,?,?,?, ?,?,?,?,?, ?,?,?,?,?, ?, """+fedirp+""",?,?,?)
+            """, values)
+            }
+    } catch (Exception e) {
+        println("error parsing "+values)
+        e.printStackTrace()
+    }
 }
 
 println "total="+total
