@@ -28,7 +28,7 @@ def convertShapefile(folderPath, outputFile):
         full_record = record+[bbox, num_parts,shape_type,point_str]
         csv_writer.writerow(full_record)
 
-    print("Done with {0}".format(outputFile.name))
+    print("Done with {0}".format(folderPath))
 
 
 if __name__ == "__main__":
