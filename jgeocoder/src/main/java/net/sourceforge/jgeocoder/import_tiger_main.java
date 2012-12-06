@@ -30,6 +30,7 @@ import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.dbutils.*;
 import org.apache.log4j.Logger;
+import org.apache.log4j.ConsoleAppender;
 import org.h2.jdbcx.JdbcDataSource;
 
 import java.io.*;
@@ -41,19 +42,19 @@ public class import_tiger_main {
 		
 		JdbcDataSource WorkingtigerDs = new JdbcDataSource();
 		WorkingtigerDs.setURL("jdbc:h2:C:\\Users\\Gateway\\Documents\\GitHub\\JGeocoder\\local\\street_data.h2");
-		
-		//final Logger logger = Logger.getLogger(this.getClass());
-		
+		final Logger logger = Logger.getLogger(import_tiger_main.class);
+
 		String csvFile;
 		Scanner inFile = null;
 		String[] holdFileLine = null;
-        //logger.info("Initialized import_tiger_main");
+        logger.info("Initialized import_tiger_main");
         csvFile = ("C:\\Users\\Gateway\\Documents\\GitHub\\JGeocoder\\jgeocoder\\src\\main\\java\\net\\sourceforge\\jgeocoder\\ConvertedDate.csv");
 		inFile = new Scanner(new File(csvFile));
 		int count = 0;
 		String fedirp =null;
 		String fedirs=null;
 		String fetype =null;
+		String msg =null;
 		
 		QueryRunner run = new QueryRunner();
 		
@@ -78,12 +79,12 @@ public class import_tiger_main {
 			while (inFile.hasNextLine())
 			{
 				String line = inFile.nextLine();
-				System.out.println(line);
+				
 				count++;
 				holdFileLine = line.split(",");
-				if(count%25 == 0)
+				if(count%1000 == 0)
 				{
-					System.out.println(count);
+					logger.info(count + "records inserted.");
 				}
 				
 				Map<AddressComponent, String> m = null;
@@ -91,7 +92,20 @@ public class import_tiger_main {
 				try{
 
 					 if (holdFileLine[9]!=null)
-					 {      
+					 {   
+						 if(holdFileLine[6].equals("Federal Hill Rd II"))
+						 {
+							 msg = "Parser does not handle: " + holdFileLine[6] + " . Will return null pointer."; 
+							 logger.error(msg);
+							 continue;
+						 }
+						 if(holdFileLine[6].equals("Black Bridge Rd II"))
+						 {
+							 msg = "Parser does not handle: " + holdFileLine[6] + " . Will return null pointer.";
+							 logger.error(msg);
+							 continue;
+						 }
+					
 						 m  = AddressParser.parseAddress("103 "+holdFileLine[6]+" "+holdFileLine[11]);
 					 }
 				     else 
@@ -99,11 +113,11 @@ public class import_tiger_main {
 				    	 m  = AddressParser.parseAddress("103 "+holdFileLine[6]+" "+holdFileLine[12]);
 				     }
 				      if( m == null) {
-				          System.out.println("error parsing "+ holdFileLine);
-				          
+				          	msg = "Error parsing: "+ line + ".";
+							logger.error(msg);
+							continue;
 				      } 
-				      else
-				      {
+
 				        m = AddressStandardizer.normalizeParsedAddress(m);
 				        if (m.get(AddressComponent.PREDIR)==null)
 				        {
@@ -111,7 +125,7 @@ public class import_tiger_main {
 				        }
 				        else
 				        {
-				        	fedirp="'"+m.get(AddressComponent.PREDIR)+"'";
+				        	fedirp=m.get(AddressComponent.PREDIR);
 				        }
 				        
 				        if (m.get(AddressComponent.POSTDIR)=="null")
@@ -120,20 +134,32 @@ public class import_tiger_main {
 				        }
 				        else
 				        {
-				        	fedirs="'"+m.get(AddressComponent.PREDIR)+"'";
+				        	fedirs=m.get(AddressComponent.PREDIR);
 				        }
 				       
 				        if (m.get(AddressComponent.TYPE)=="null")
 				        {
 				        	fetype= null;
+				        	msg = "FETYPE is null for: "+ line + ".";
+							logger.warn(msg);
 				        }
 				        else
 				        {
-				        	fetype="'"+ m.get(AddressComponent.TYPE)+"'";
+				        	fetype=m.get(AddressComponent.TYPE);
 				        }
 				        
 				        
+				       String[] temp = new String[holdFileLine.length + 4];
+				      for(int i = 0; i < holdFileLine.length-1; i++)
+				      {
+				    	 temp[i] = holdFileLine[i];
 				      }
+				      String street = m.get(AddressComponent.STREET);
+				      temp[temp.length-4] = fedirp;
+				      temp[temp.length-3] = street;
+				      temp[temp.length-2] = fetype;
+				      temp[temp.length-1] = fedirs;
+				      holdFileLine = temp;
 				      
 				      if (!conn.isValid(1)) {
 				        	conn.close();
@@ -145,13 +171,12 @@ public class import_tiger_main {
 						"PLUS4L,PLUS4R," +
 						"LFROMTYP,LTOTYP,RFROMTYP,RTOTYP,OFFSETL,OFFSETR,BBOX,NUMPARTS,SHAPETYPE," +
 						"LATLONGPAIRS,FEDIRP,FENAME,FETYPE,FEDIRS) " +
-						" values (?,?,?,?,?,?,?,?,?,?,?,?,?, ?,?,?,?,?, ?,?,?,?,?, ?,?,?,?,?, ?," +
-						fedirp + ",'" + m.get(AddressComponent.STREET) + "'," + fetype + "," +
-						fedirs+ ")" , holdFileLine);
+						" values (?,?,?,?,?,?,?,?,?,?,?,?,?, ?,?,?,?,?, ?,?,?,?,?, ?,?,?,?,?, ?,?,?,?," +
+						"?)" , holdFileLine);
 				}
-				//26 "?" (Note to Self) -Vincent Hueber
 				catch(SQLException sqle)
 				{
+					logger.error(sqle);
 					throw sqle;
 				}
 				
@@ -163,19 +188,19 @@ public class import_tiger_main {
 	        }
 			System.out.println("creating indicies on TIGER_NY");
 			run.update(conn,"create index IDX0_TIGER_NY on TIGER_NY(tlid)");
-			run.update(conn,"create index IDX0_TIGER_NY on TIGER_NY(fename)");
-			run.update(conn,"create index IDX0_TIGER_NY on TIGER_NY(fraddL)");
-			run.update(conn,"create index IDX0_TIGER_NY on TIGER_NY(toaddL)");
-			run.update(conn,"create index IDX0_TIGER_NY on TIGER_NY(fraddR)");
-			run.update(conn,"create index IDX0_TIGER_NY on TIGER_NY(toaddR)");
-			run.update(conn,"create index IDX0_TIGER_NY on TIGER_NY(zipL)");
-			run.update(conn,"create index IDX0_TIGER_NY on TIGER_NY(zipR)");
+			run.update(conn,"create index IDX1_TIGER_NY on TIGER_NY(fename)");
+			run.update(conn,"create index IDX2_TIGER_NY on TIGER_NY(fraddL)");
+			run.update(conn,"create index IDX3_TIGER_NY on TIGER_NY(toaddL)");
+			run.update(conn,"create index IDX4_TIGER_NY on TIGER_NY(fraddR)");
+			run.update(conn,"create index IDX5_TIGER_NY on TIGER_NY(toaddR)");
+			run.update(conn,"create index IDX6_TIGER_NY on TIGER_NY(zipL)");
+			run.update(conn,"create index IDX7_TIGER_NY on TIGER_NY(zipR)");
 			
 			conn.close();
 		}
 		
 		catch (SQLException sqle) {
-	      //logger.error("SQL Statement not executed", sqle);
+	      logger.error(sqle);
 	      throw sqle;
 		}
 	}
